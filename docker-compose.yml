@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  api:
+    image: api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    volumes:
+      - ./api:/usr/src/app
+    restart: always
+    ports:
+      - 3000:3000
