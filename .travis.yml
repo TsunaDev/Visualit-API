@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - "10"
+
+services:
+  - mongodb
+
+script:
+  - ./test_api.sh
