@@ -7,3 +7,6 @@ services:
 
 script:
   - ./test_api.sh
+
+notifications:
+  slack: visualitgroupe:ypMCT1KDnZ9t2u18GtWLbhkk
