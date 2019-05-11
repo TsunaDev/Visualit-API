@@ -4,11 +4,11 @@ services:
   api:
     image: api
     build:
-      context: ./api
+      context: ./
       dockerfile: Dockerfile
     container_name: api
     volumes:
-      - ./api:/usr/src/app
+      - ./:/usr/src/app
       - /usr/src/app/node_modules
     restart: always
     ports:
