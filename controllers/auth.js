@@ -9,7 +9,7 @@ module.exports = {
           let token = jwt.sign({username}, process.env["JWTSECRET"], {
               'expiresIn': process.env["JWTEXP"]
           });
-          return res.status(200).send({token, expiresIn: process.env.JWTEXP});
+          return res.status(200).send({token, expiresIn: parseInt(process.env.JWTEXP)});
       } else {
           return res.sendStatus(401);
       }
