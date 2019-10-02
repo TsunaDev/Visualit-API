@@ -94,5 +94,34 @@ module.exports = {
     }
 
     return ret;
+  },
+
+  getAllUsers: async (req, res) => {
+    let ret = null;
+    let role = null;
+    let check = false;
+
+    await graph.getUserRole(req.user.username, (result) => {
+      if (result.status)
+        role = result.value;
+      else
+        role = "Unknown";
+    });
+
+    if (role === "admin")
+      check = true;
+
+    if (!check)
+      ret = res.status(401).send({error: {name: "InvalidRole"}});
+    else {
+      await graph.getAllUsers(function(result) {
+        if (result.status)
+          ret = res.status(200).send(result.value);
+        else
+          ret = res.status(401).send({error: result.value}); // 404?
+      });
+    }
+
+    return ret;
   }
 };

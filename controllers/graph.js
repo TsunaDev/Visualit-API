@@ -39,7 +39,23 @@ module.exports = {
   },
 
   getAllUsers: (callback) => {
-    return GraphCall('MATCH (u:User) RETURN u');
+    const request = 'MATCH (u:User) RETURN u';
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+
+      let entries = [];
+      if (res.records && res.records.length) {
+        res.records.forEach((record, index) => {  
+          entries.push(record.get(0).properties);
+        });
+        callback({status: true, value: entries});
+      } else
+        callback({status: false, value: {name: "InputError", code: "No record found."}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
   },
 
   getUserRole: (username, callback) => {
