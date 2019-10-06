@@ -62,19 +62,83 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
         }
 
 
+## Création d'un service [POST]
+
++ Request service à rajouter (application/json)
+
+    + Attributes
+        + name: `Maternité` (string, required)
+
++ Response 201
+
+        {}
+
+
+## Suppression d'un service [DELETE /services/{service_id}]
+
++ Parameters
+
+    + service_id: 1 (number, required) - l'id du lit à supprimer
+
++ Request ID valide (application/json)
+
++ Response 204
+
+        {}
+
++ Request ID invalide (application/json)
+
++ Response 404
+
+        {}
+
+
+## Modification d'un service [PUT /services/{service_id}]
+
++ Parameters
+
+    + service_id: 1 (number, required) - l'id du lit à modifier
+
++ Request modifications (application/json)
+
+    + Attributes
+        + name: `Pédiatrie` (string, required) - nouveau nom du service
+
++ Response 204
+
+        {}
+
+
 # Lits [/beds]
 
-Insérer une description ici.
+Les lits désignent de manière générale un emplacement pouvant accepter un patient.
+
+Les lits sont liés à un [service](#/get~services)
+
+Chaque lit peut être de trois statuts différents:
+
+- *Free*    : Le lit n'est pas occupé
+- *Busy*    : Le lit est occupé
+- *Leaving* : Le patient peut quitter la chambre. Il s'agit d'un état transitoire entre *Busy* et *Free*, mais non obligatoire.
+
+Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqué par le booléen *to_clean*.
+
+*display_name* est le nom du lit que verra le personnel de l'hôpital.
 
 
-## Liste des lits [GET]
+## Liste des lits [GET /beds{?services_id}{?status}{?to_clean}]
+
++ Parameters
+    + services_id: 1 (array[number], optional) - renvoie les lits appartenant au service en question. Si plusieurs ID sont demandés, le résultat final sera l'union des résultats séparés.
+    + status: Leaving, Busy (array[Status], optional) - renvoie les lits correspondants à cet état. Si plusieurs états sont demandés, le résultat final sera l'union des résultats séparés.
+        + Default: Free, Busy, Leaving
+    + to_clean: true (boolean, optional) - filtre les lits en fonction de leur état de nettoyage.
 
 + Request chambres à nettoyer par service (application/json)
 
     + Attributes
-        + services_id: 1 (array[number], optional)
-        + status (array[Status], optional)
-        + toClean: true (boolean, optional)
+        + services_id: 1 (number, optional)
+        + status: Free (array[Status], optional)
 
 + Response 200 (application/json)
 
@@ -109,7 +173,7 @@ Insérer une description ici.
     + Attributes
         + services_id: 7, 8 (array[number], optional)
         + status: Free (array[Status], optional)
-        + toClean (boolean, optional)
+        + to_clean: true (boolean, optional)
 
 + Response 200 (application/json)
 
@@ -223,7 +287,7 @@ Insérer une description ici.
 
 + Parameters
 
-    + bed_id: 1 (number, required) - l'id du lit en question
+    + bed_id: 1 (number, required) - l'id du lit à modifier
 
 + Request modification du lit (application/json)
 
@@ -231,7 +295,36 @@ Insérer une description ici.
         + status: Free (Status)
         + to_clean: false (boolean)
         + display_name: `Chambre 420` (string)
+        + service_id: 1 (number)
 
 + Response 204
         
         {}
+
+
+## Création d'un lit [POST]
+
++ Request
+
+    + Attributes
+        + service_id: 1 (number) - L'id du service auquel le lit est associé
+        + status: Free (Status, optional) - L'état du nouveau lit
+            + Default: Free
+        + to_clean: false (boolean, optional) - Indique si le lit doit être nettoyé ou non
+            + Default: false
+        + display_name: `Chambre 420` (string) - Nom du lit que le personnel hospitalier verra
+
++ Response 201
+
+        {}
+
+## Suppression d'un lit [DELETE /beds/{bed_id}]
+
++ Parameters
+
+    + bed_id: 1 (number, required) - l'id du lit à supprimer
+
++ Response 204
+
+        {}
+
