@@ -17,6 +17,11 @@ Afin de faciliter les tests de mises en place de clients utilisant cette API, un
 + Busy (string)
 + Leaving (string)
 
+## User (enum)
++ Admin (string)
++ Chef Service (string)
++ Personnel Entretien (string)
++ Infirmier (string)
 
 # Services [/services]
 
@@ -148,21 +153,21 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
                     "bed_id": 1,
                     "service_id": 1,
                     "status": "Free",
-                    "to_clean": true
+                    "to_clean": true,
                     "display_name": "Chambre 402",
                 },
                 {
                     "bed_id": 1053,
                     "service_id": 1,
                     "status": "Leaving",
-                    "to_clean": true
+                    "to_clean": true,
                     "display_name": "Chambre 322",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 1,
                     "status": "Busy",
-                    "to_clean": true
+                    "to_clean": true,
                     "display_name": "Chambre 107",
                 }
             ]
@@ -183,35 +188,35 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
                     "bed_id": 7,
                     "service_id": 7,
                     "status": "Free",
-                    "to_clean": true
+                    "to_clean": true,
                     "display_name": "Chambre 402",
                 },
                 {
                     "bed_id": 1053,
                     "service_id": 7,
                     "status": "Leaving",
-                    "to_clean": false
+                    "to_clean": false,
                     "display_name": "Chambre 32",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 7,
                     "status": "Busy",
-                    "to_clean": false
+                    "to_clean": false,
                     "display_name": "Chambre 109",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 8,
                     "status": "Busy",
-                    "to_clean": false
+                    "to_clean": false,
                     "display_name": "Chambre 203",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 8,
                     "status": "Busy",
-                    "to_clean": true
+                    "to_clean": true,
                     "display_name": "Chambre 315",
                 }
             ]
@@ -236,13 +241,14 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
 
 + Parameters
 
-    + bed_id: 1 (number, required) - l'id du lit en question
+    + bed_id: 10 (number, required) - l'id du lit en question
 
 + Request valide (application/json)
 
 + Response 200 (application/json)
 
     + Attributes
+        + bed_id: 10 (number)
         + service_id: 1 (number)
         + status: Free (Status)
         + to_clean: false (boolean)
@@ -328,3 +334,73 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
 
         {}
 
+# Utilisateurs [/users]
+
+Les utilisateurs du logiciel Visualit, peuvent être de 4 types différents:
+
+- *Admin* : L'administrateur, il possède tous les droits décrits dans cette documentation, notamment sur les autres comptes utilisateurs, et services.
+- *Chef Service* : Le chef de service a tous les droits sur les lits concernants son service.
+- *Personnel Entretien* : Le personnel d'entretien a les droits de modification du status de propreté d'une chambre.
+- *Infirmier* : Les infirmiers peuvent modifier les états des lits (propreté et occupation)
+
+## Connexion [POST /users/login]
+
+Il s'agit de la seule action disponible lorsqu'un utilisateur n'est pas connecté.
+Toutes les actions qu'il effectuera par la suite sera donc liée à son compte.
+
++ Request valide (application/json)
+
+    + Attributes
+        + type: Admin (User) - Le type d'utilisateur demandé
+        + username: john.doe - Le nom de l'utilisateur
+        + password: password - Le mot de passe
+
++ Response 204 (application/json)
+
+        {}
+
++ Request invalide (application/json)
+
+    + Attributes
+        + type: Admin (User) - Le type d'utilisateur demandé
+        + username: john.doe - Le nom de l'utilisateur
+        + password: wrongpassword - Un mauvais mot de passe
+
++ Response 401 (application/json)
+
+        {}
+
+
+## Déconnexion [POST /users/logout]
+
+Déconnecte l'utilisateur.
+
++ Request utilisateur connecté (application/json)
+
++ Response 204 (application/json)
+
+        {}
+
++ Request utilisateur non connecté (application/json)
+
++ Response 403 (application/json)
+
+        {}
+
+
+## Creation d'un utilisateur []
+
+//## Suppression
+
+//## modification
+
+//## informations
+
+
+//how to handle QR code?
+
+// would it be cool to have permissions for this documentation as the users?
+
+// I need to setup the links in introduction
+
+// should the descriptions of each main part be in individual sections like introduction.
