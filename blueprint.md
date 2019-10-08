@@ -9,6 +9,50 @@ Si ce n'est pas ce que vous cherchez, vous pouvez accéder à la description de 
 
 Afin de faciliter les tests de mises en place de clients utilisant cette API, une version factice de cette API est disponible.
 
+Cette API est divisée en 3 sous parties principales:
+
+
+## Services
+
+Il s'agit ici d'un service d'un point de vue hospitalier, et absolument pas informatique. Autrement dit ce sont les différentes zones ou catégories des lits et/ou de soins que les patients vont recevoir.
+
+Dans le logiciel, un service est un objet composé de:
+
++ un id
++ un nom
+
+Chaque lit est lié à un service, et les services sont utiles notamment pour triés les lits lors de l'assignation d'un lit à un patient.
+
+
+## Lits
+
+Les lits désignent de manière générale un emplacement pouvant accepter un patient.
+
+Les lits sont liés à un service
+
+Chaque lit peut être de trois statuts différents:
+
+- *Free*    : Le lit n'est pas occupé
+- *Busy*    : Le lit est occupé
+- *Leaving* : Le patient peut quitter la chambre. Il s'agit d'un état transitoire entre *Busy* et *Free*, mais non obligatoire.
+
+Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqué par le booléen *to_clean*.
+
+*display_name* est le nom du lit que verra le personnel de l'hôpital.
+
+
+## Utilisateurs
+
+Les utilisateurs du logiciel Visualit, peuvent être de 4 types différents:
+
+- *Admin* : L'administrateur, il possède tous les droits décrits dans cette documentation, notamment sur les autres comptes utilisateurs, et services.
+- *Manager* : Le chef de service a tous les droits sur les lits concernants son service.
+- *Cleaner* : Le personnel d'entretien a les droits de modification du status de propreté d'une chambre.
+- *Nurse* : Les infirmiers peuvent modifier les états des lits (propreté et occupation)
+
+
+## Erreurs
+Les [statuts d'erreur http](https://github.com/for-GET/know-your-http-well/blob/master/status-codes.md) sont utilisés.
 
 # Data Structures
 
@@ -24,15 +68,6 @@ Afin de faciliter les tests de mises en place de clients utilisant cette API, un
 + Nurse (string)
 
 # Services [/services]
-
-Il s'agit ici d'un service d'un point de vue hospitalier, et absolument pas informatique. Autrement dit ce sont les différentes zones ou catégories des lits et/ou de soins que les patients vont recevoir.
-
-Dans le logiciel, un service est un objet composé de:
-
-+ un id
-+ un nom
-
-Chaque lit est lié à un service, et les services sont utiles notamment pour triés les lits lors de l'assignation d'un lit à un patient.
 
 
 ## Liste des services [GET]
@@ -115,20 +150,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 
 # Lits [/beds]
-
-Les lits désignent de manière générale un emplacement pouvant accepter un patient.
-
-Les lits sont liés à un [service](#/get~services)
-
-Chaque lit peut être de trois statuts différents:
-
-- *Free*    : Le lit n'est pas occupé
-- *Busy*    : Le lit est occupé
-- *Leaving* : Le patient peut quitter la chambre. Il s'agit d'un état transitoire entre *Busy* et *Free*, mais non obligatoire.
-
-Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqué par le booléen *to_clean*.
-
-*display_name* est le nom du lit que verra le personnel de l'hôpital.
 
 
 ## Liste des lits [GET /beds{?services_id}{?status}{?to_clean}]
@@ -336,13 +357,6 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
 
 # Utilisateurs [/users]
 
-Les utilisateurs du logiciel Visualit, peuvent être de 4 types différents:
-
-- *Admin* : L'administrateur, il possède tous les droits décrits dans cette documentation, notamment sur les autres comptes utilisateurs, et services.
-- *Manager* : Le chef de service a tous les droits sur les lits concernants son service.
-- *Cleaner* : Le personnel d'entretien a les droits de modification du status de propreté d'une chambre.
-- *Nurse* : Les infirmiers peuvent modifier les états des lits (propreté et occupation)
-
 ## Connexion [POST /users/login]
 
 Il s'agit de la seule action disponible lorsqu'un utilisateur n'est pas connecté.
@@ -495,11 +509,3 @@ Récupère les informations d'un utilisateur. Sera probablement utile plus tard 
         + password: password (string) - Le mot de passe
        
 
-
-//how to handle QR code?
-
-// would it be cool to have permissions for this documentation as the users?
-
-// I need to setup the links in introduction
-
-// should the descriptions of each main part be in individual sections like introduction.
