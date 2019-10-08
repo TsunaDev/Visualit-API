@@ -279,7 +279,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 404
 
-## Modification de l'état d'un lit [POST /beds/{bed_id}/status]
+## Modification de l'état d'un lit [PUT /beds/{bed_id}/status]
 
 + Parameters
 
@@ -294,7 +294,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
         {}
 
-## Modification de la propreté d'un lit [POST /beds/{bed_id}/clean]
+## Modification de la propreté d'un lit [PUT /beds/{bed_id}/clean]
 
 + Parameters
 
