@@ -19,9 +19,9 @@ Afin de faciliter les tests de mises en place de clients utilisant cette API, un
 
 ## User (enum)
 + Admin (string)
-+ Chef Service (string)
-+ Personnel Entretien (string)
-+ Infirmier (string)
++ Manager (string)
++ Cleaner (string)
++ Nurse (string)
 
 # Services [/services]
 
@@ -339,9 +339,9 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
 Les utilisateurs du logiciel Visualit, peuvent être de 4 types différents:
 
 - *Admin* : L'administrateur, il possède tous les droits décrits dans cette documentation, notamment sur les autres comptes utilisateurs, et services.
-- *Chef Service* : Le chef de service a tous les droits sur les lits concernants son service.
-- *Personnel Entretien* : Le personnel d'entretien a les droits de modification du status de propreté d'une chambre.
-- *Infirmier* : Les infirmiers peuvent modifier les états des lits (propreté et occupation)
+- *Manager* : Le chef de service a tous les droits sur les lits concernants son service.
+- *Cleaner* : Le personnel d'entretien a les droits de modification du status de propreté d'une chambre.
+- *Nurse* : Les infirmiers peuvent modifier les états des lits (propreté et occupation)
 
 ## Connexion [POST /users/login]
 
@@ -388,13 +388,112 @@ Déconnecte l'utilisateur.
         {}
 
 
-## Creation d'un utilisateur []
+## Creation d'un utilisateur [POST /users]
 
-//## Suppression
+Créé un compte utilisateur
 
-//## modification
++ Request (application/json)
 
-//## informations
+    + Attributes
+        + type: Cleaner (User) - Le type d'utilisateur à créer
+        + username: john.doe (string) - Le nom de l'utilisateur
+        + password: wrongpassword (string) - Le mot de passe
+
+
++ Response 201 (application/json)
+
+        {}
+
+## List des utilisateurs [GET /users{?type}{?offset}{?limit}]
+
+Permet de récupérer/filtrer tous les utilisateurs.
+
++ Parameters
+    + type: Cleaner (User, optional) - Le type d'utilisateur
+    + offset: 40 (number, optional) - Le nombre de résultats correspondant à la requête à ignorer
+        - Default: 0
+    + limit: 20 (number, optional) - Le nombre maximum de résultats à retourner en réponse de la requếte.
+        - Default: 20
+
++ Request avec des droits administrateur (application/json)
+
++ Response 200 (application/json)
+
+        {
+            "users": [
+                {
+                    "id": 12,
+                    "type": "Cleaner",
+                    "username": "john.doe",
+                    "password": "xxxxxx"
+                }
+            ],
+            "offset": 20
+        }
+
++ Request avec des droits normaux (application/json)
+
++ Response 200 (application/json)
+
+        {
+            "users": [
+                {
+                    "id": 12,
+                    "type": "Cleaner",
+                    "username": "john.doe"
+                }
+            ],
+            "offset": 20
+        }
+ 
+## Suppression d'un utilisateur [DELETE /users/{user_id}]
+
+Supprime un utilisateur.
+
++ Parameters
+
+    + user_id: 1 (number, required) - l'id de l'utilisateur à supprimer
+
++ Request (application/json)
+
++ Response 204 (application/json)
+
+        {}
+
+## Modification d'un utilisateur [PUT /users/{user_id}]
+
+Modifie un utilisateur
+
++ Parameters
+
+    + user_id: 1 (number, required) - l'id de l'utilisateur à modifier
+
++ Request (application/json)
+
+    + Attributes
+        + username: john.smith (string, optional) - Le nouveau nom de l'utilisateur
+        + password: password (string, optional) - Le nouveau mot de passe
+        
++ Response 204 (application/json)
+
+## Informations d'un utilisateur [GET /users/{user_id}]
+
+Récupère les informations d'un utilisateur. Sera probablement utile plus tard lorsque l'utilisateur contiendra les informations de ses actions, etc.
+
++ Parameters
+
+    + user_id: 1 (number, required) - l'id de l'utilisateur
+
++ Request (application/json)
+
++ Response 200
+
+    + Attributes
+        + user_id: 1 (number) - L'id de l'utilisateur
+        + type: Cleaner (User) - Le type d'utilisateur à créer
+        + username: john.doe (string) - Le nom de l'utilisateur
+        + password: password (string) - Le mot de passe
+       
 
 
 //how to handle QR code?
