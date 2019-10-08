@@ -152,10 +152,10 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 # Lits [/beds]
 
 
-## Liste des lits [GET /beds{?services_id}{?status}{?to_clean}]
+## Liste des lits [GET /beds{?service_id}{?status}{?to_clean}]
 
 + Parameters
-    + services_id: 1 (array[number], optional) - renvoie les lits appartenant au service en question. Si plusieurs ID sont demandés, le résultat final sera l'union des résultats séparés.
+    + service_id: 1 (array[number], optional) - renvoie les lits appartenant au service en question. Si plusieurs ID sont demandés, le résultat final sera l'union des résultats séparés.
     + status: Leaving, Busy (array[Status], optional) - renvoie les lits correspondants à cet état. Si plusieurs états sont demandés, le résultat final sera l'union des résultats séparés.
         + Default: Free, Busy, Leaving
     + to_clean: true (boolean, optional) - filtre les lits en fonction de leur état de nettoyage.
@@ -163,7 +163,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 + Request chambres à nettoyer par service (application/json)
 
     + Attributes
-        + services_id: 1 (number, optional)
+        + service_id: 1 (number, optional)
         + status: Free (array[Status], optional)
 
 + Response 200 (application/json)
@@ -197,7 +197,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 + Request chambres libres par service (application/json)
 
     + Attributes
-        + services_id: 7, 8 (array[number], optional)
+        + service_id: 7, 8 (array[number], optional)
         + status: Free (array[Status], optional)
         + to_clean: true (boolean, optional)
 
@@ -248,7 +248,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
     Exemple de requete invalide, avec un des statut ne correspondant pas à un statut connu.
 
     + Attributes
-        + services_id: 1 (array[number], optional)
+        + service_id: 1 (array[number], optional)
         + status: InvalidString, Busy, Leaving (array[Status], optional)
         + to_clean: true (boolean, optional)
 
