@@ -14,7 +14,7 @@ async function checkUserRole(req) {
       else
         role = "Unknown";
     });
-
+    
     if (role !== "admin") {
       console.log(role);
       return false;
@@ -70,7 +70,7 @@ module.exports = {
     else {
       await graph.updateUser(req.body["username"], req.body, function(result) {
         if (result.status)
-          ret = res.status(201).send(result.value.properties);
+          ret = res.status(202).send(result.value.properties);
         else
           ret = res.status(401).send({error: result.value});
       });
