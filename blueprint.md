@@ -331,7 +331,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 ## Création d'un lit [POST]
 
-+ Request
++ Request (application/json)
 
     + Attributes
         + service_id: 1 (number) - L'id du service auquel le lit est associé
@@ -341,7 +341,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
             + Default: false
         + display_name: `Chambre 420` (string) - Nom du lit que le personnel hospitalier verra
 
-+ Response 201
++ Response 201 (application/json)
 
         {}
 

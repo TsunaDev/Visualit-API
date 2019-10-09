@@ -31,6 +31,20 @@ function listServices(req, res) {
 function deleteService(req, res) {
 	var service_id = req.params.service_id
 
+	if (!service_id) {
+		res.statusMessage = "The service_id is required for service deletion"
+		return res.send(404)
+	}
+	service_id = parseInt(service_id, 10);
+	if (isNaN(service_id)) {
+		res.statusMessage = "Service_id should be an integer."
+		return res.send(400)
+	}
+	if (![1, 2, 4, 7, 8].includes(service_id)) {
+		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
+ 		return res.send(404)
+	}
+
 	return res.send(204)
 }
 
@@ -38,12 +52,37 @@ function modifyService(req, res) {
 	var service_id = req.params.service_id
 	var name = req.body.name
 
+	if (!service_id) {
+		res.statusMessage = "The service_id is required for service modification"
+		return res.send(404)
+	}
+	if (!name || name === "") {
+		res.statusMessage = "The name is required for service modification"
+		return res.send(400)
+	}
+	service_id = parseInt(service_id, 10);
+	if (isNaN(service_id)) {
+		res.statusMessage = "Service_id should be an integer."
+		return res.send(400)
+	}
+	if (![1, 2, 4, 7, 8].includes(service_id)) {
+		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
+		return res.send(404)
+	}
+
 	return res.send(204)
 }
 
 function createService(req, res) {
 	var name = req.body.name
 
+	console.log(name)
+
+	if (!name || name === "") {
+		res.statusMessage = "The name is required for service creation"
+		res.status(400)
+		return res.end()
+	}
  	return res.send(204)
  }
 
