@@ -7,12 +7,13 @@ const passport = require('passport');
 
 router.post('/', controller.register);
 
+router.get('/', passport.authenticate('jwt', {session: false}), controller.fetchInfos);
+
 router.put('/', passport.authenticate('jwt', {session: false}), controller.update);
 
-router.get('/', passport.authenticate('jwt', {session: false}), controller.fetchInfos);
+router.delete('/', passport.authenticate('jwt', {session: false}), controller.delete);
 
 router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAllUsers);
 
-router.delete('/', passport.authenticate('jwt', {session: false}), controller.delete);
 
 module.exports = router;

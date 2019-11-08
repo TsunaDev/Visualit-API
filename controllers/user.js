@@ -7,7 +7,6 @@ async function checkUserRole(req) {
     req.body["username"] = req.query.username;
   if (req.body["username"] !== req.user.username) {
     let role = null;
-
     await graph.getUserRole(req.user.username, (result) => {
       if (result.status)
         role = result.value;
@@ -16,7 +15,6 @@ async function checkUserRole(req) {
     });
     
     if (role !== "admin") {
-      console.log(role);
       return false;
     }
   }
@@ -30,7 +28,7 @@ module.exports = {
     const role = req.body["role"];
 
     if (!username || !password || !role)
-    return res.send(401).send({error: {name: "MissingParameter"}});
+    return res.status(401).send({error: {name: "MissingParameter"}});
 
     let ret = null;
 
@@ -65,15 +63,19 @@ module.exports = {
   update: async (req, res) => {
     let ret = null;
 
-    if (!checkUserRole(req))
+    const check = await checkUserRole(req);
+    if (!check) {
       ret = res.status(401).send({error: {name: "InvalidRole"}});
-    else {
-      await graph.updateUser(req.body["username"], req.body, function(result) {
+    } else {
+      let args = JSON.parse(JSON.stringify(req.body));
+      delete args.username
+      await graph.updateUser(req.body["username"], args, function(result) {
         if (result.status)
           ret = res.status(202).send(result.value.properties);
-        else
+        else {
           ret = res.status(401).send({error: result.value});
-      });
+        }
+    });
     }
 
     return ret;
@@ -82,7 +84,8 @@ module.exports = {
   delete: async (req, res) => {
     let ret = null;
 
-    if (!checkUserRole(req))
+    const check = await checkUserRole(req);
+    if (!check)
       ret = res.status(401).send({error: {name: "InvalidRole"}});
     else {
       await graph.deleteUser(req.body["username"], function(result) {

@@ -7,7 +7,7 @@ module.exports = {
     const password = req.body["password"];
     
     if (!username || !password)
-      return res.send(401).send({error: {name: "MissingParameter"}});
+      return res.status(401).send({error: {name: "MissingParameter"}});
     
     let ret = null;
 
