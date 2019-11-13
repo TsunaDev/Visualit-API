@@ -16,9 +16,12 @@ function listBeds(req, res) {
 		status.forEach((v) =>  {
 		 	if (!["Free", "Leaving", "Busy"].includes(v)) {
 				res.statusMessage = `Invalid '${v}' status.`
-				return res.sendStatus(400)
+				res.status(400)
 			}
 		})
+		if (res.statusCode == 400) {
+			return res.end()
+		}
 	}
 
 	if (to_clean && !["false", "true"].includes(to_clean)) {
