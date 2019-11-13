@@ -8,7 +8,7 @@ function listBeds(req, res) {
 		service_id = parseInt(service_id, 10);
 		if (isNaN(service_id)) {
 			res.statusMessage = "Service_id should be an integer."
-			return res.send(400)
+			return res.sendStatus(400)
 		}
 	}
 
@@ -16,14 +16,14 @@ function listBeds(req, res) {
 		status.forEach((v) =>  {
 		 	if (!["Free", "Leaving", "Busy"].includes(v)) {
 				res.statusMessage = `Invalid '${v}' status.`
-				return res.send(400)
+				return res.sendStatus(400)
 			}
 		})
 	}
 
 	if (to_clean && !["false", "true"].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	res.json({
@@ -51,7 +51,7 @@ function listBeds(req, res) {
           }
        ]
     })
-	return res.end(200)
+	return res.sendStatus(200)
 }
 
 function getBed(req, res) {
@@ -60,16 +60,16 @@ function getBed(req, res) {
 
 	if (!bed_id) {
 		res.statusMessage = "The bed_id is required."
-		return res.send(404)
+		return res.sendStatus(404)
 	}
 	bed_id = parseInt(bed_id, 10);
 	if (isNaN(bed_id)) {
 		res.statusMessage = "bed_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.send(404)
+ 		return res.sendStatus(404)
 	}
 
 	res.json(
@@ -82,7 +82,7 @@ function getBed(req, res) {
 		}
 	)
 
-	return res.end(200)
+	return res.sendStatus(200)
 }
 
 function deleteBed(req, res) {
@@ -90,19 +90,19 @@ function deleteBed(req, res) {
 
 	if (!bed_id) {
 		res.statusMessage = "The bed_id is required."
-		return res.send(404)
+		return res.sendStatus(404)
 	}
 	bed_id = parseInt(bed_id, 10);
 	if (isNaN(bed_id)) {
 		res.statusMessage = "bed_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.send(404)
+ 		return res.sendStatus(404)
 	}
 
-	return res.send(204)
+	return res.sendStatus(204)
 }
 
 function modifyBed(req, res) {
@@ -115,44 +115,44 @@ function modifyBed(req, res) {
 
 	if (!bed_id) {
 		res.statusMessage = "The bed_id is required."
-		return res.send(404)
+		return res.sendStatus(404)
 	}
 	bed_id = parseInt(bed_id, 10);
 	if (isNaN(bed_id)) {
 		res.statusMessage = "bed_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.send(404)
+ 		return res.sendStatus(404)
 	}
 
 	if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
 		res.statusMessage = `Invalid '${status}' status.`
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	if (!to_clean || !["false", "true"].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	if (!display_name || display_name === "") {
 		res.statusMessage = "Invalid display_name"
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	if (!service_id) {
 		res.statusMessage = "The service_id is required."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	service_id = parseInt(service_id, 10);
 	if (isNaN(service_id)) {
 		res.statusMessage = "service_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
-	return res.send(204)
+	return res.sendStatus(204)
 }
 
 function modifyBedState(req, res) {
@@ -162,24 +162,24 @@ function modifyBedState(req, res) {
 
 	if (!bed_id) {
 		res.statusMessage = "The bed_id is required."
-		return res.send(404)
+		return res.sendStatus(404)
 	}
 	bed_id = parseInt(bed_id, 10);
 	if (isNaN(bed_id)) {
 		res.statusMessage = "bed_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.send(404)
+ 		return res.sendStatus(404)
 	}
 
 	if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
 		res.statusMessage = `Invalid '${status}' status.`
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
- 	return res.send(204)
+ 	return res.sendStatus(204)
  }
 
 function cleanlinessBed(req, res) {
@@ -189,24 +189,24 @@ function cleanlinessBed(req, res) {
 
 	if (!bed_id) {
 		res.statusMessage = "The bed_id is required."
-		return res.send(404)
+		return res.sendStatus(404)
 	}
 	bed_id = parseInt(bed_id, 10);
 	if (isNaN(bed_id)) {
 		res.statusMessage = "bed_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.send(404)
+ 		return res.sendStatus(404)
 	}
 
 	if (!to_clean || !["false", "true"].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
-	return res.send(204)
+	return res.sendStatus(204)
 }
 
 function createBed(req, res) {
@@ -217,30 +217,30 @@ function createBed(req, res) {
 
 	if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
 		res.statusMessage = `Invalid '${status}' status.`
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	if (!to_clean || !["false", "true"].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	if (!display_name || display_name === "") {
 		res.statusMessage = "Invalid display_name"
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
 	if (!service_id) {
 		res.statusMessage = "The service_id is required."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 	service_id = parseInt(service_id, 10);
 	if (isNaN(service_id)) {
 		res.statusMessage = "service_id should be an integer."
-		return res.send(400)
+		return res.sendStatus(400)
 	}
 
-	return res.send(201)
+	return res.sendStatus(201)
 }
 
 module.exports = {
