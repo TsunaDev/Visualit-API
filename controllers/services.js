@@ -83,7 +83,8 @@ function createService(req, res) {
 		res.status(400)
 		return res.end()
 	}
- 	return res.sendStatus(204)
+	res.status(204)
+ 	return res.end()
  }
 
  module.exports = {
