@@ -76,8 +76,6 @@ function modifyService(req, res) {
 function createService(req, res) {
 	var name = req.body.name
 
-	console.log(name)
-
 	if (!name || name === "") {
 		res.statusMessage = "The name is required for service creation"
 		res.status(400)
