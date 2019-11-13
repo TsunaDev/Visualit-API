@@ -34,4 +34,5 @@ postman_job:
   stage: postman
   image: wojciechzurek/newman-ci
   script:
+    - npm start &
     - newman run ${POSTMAN_COLLECTION} -e ${POSTMAN_ENVIRONMENT}
