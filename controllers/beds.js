@@ -51,7 +51,7 @@ function listBeds(req, res) {
           }
        ]
     })
-	return res.send(200)
+	return res.end(200)
 }
 
 function getBed(req, res) {
@@ -82,7 +82,7 @@ function getBed(req, res) {
 		}
 	)
 
-	return res.send(200)
+	return res.end(200)
 }
 
 function deleteBed(req, res) {

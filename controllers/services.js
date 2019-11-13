@@ -45,7 +45,7 @@ function deleteService(req, res) {
  		return res.send(404)
 	}
 
-	return res.send(204)
+	return res.end(204)
 }
 
 function modifyService(req, res) {
