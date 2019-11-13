@@ -51,7 +51,8 @@ function listBeds(req, res) {
           }
        ]
     })
-	return res.sendStatus(200)
+    res.status(200)
+	return res.end()
 }
 
 function getBed(req, res) {
