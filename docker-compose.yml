@@ -7,9 +7,25 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: api
+    links:
+      - graph
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
     restart: always
     ports:
       - 3000:3000
+    environment:
+      - DB_URI="bolt://graph:7687"
+  graph:
+    image: neo4j:latest
+    ports: 
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./graph/data:/data
+      - ./graph/logs:/logs
+      - ./graph/plugins:/plugins
+    environment:
+      - NEO4J_AUTH=neo4j/test
+    
