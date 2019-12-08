@@ -113,7 +113,6 @@ describe("Tests with token required", () => {
   before(async () => {
     let resNurseToken = await loginWithUser(testNurse);
     let resAdminToken = await loginWithUser(testAdmin);
-
     nurseToken = resNurseToken.body.token;
     adminToken = resAdminToken.body.token;
   });
@@ -152,7 +151,7 @@ describe("Tests with token required", () => {
         .expect(200)
         .end(function(err, res) {
           if (err) return done(err);
-          res.body.username.should.equal("nurse");
+          res.body.name.should.equal("nurse");
           done();
         });
     });
@@ -166,7 +165,7 @@ describe("Tests with token required", () => {
         .expect(200)
         .end(function(err, res) {
           if (err) return done(err);
-          res.body.username.should.equal("nurse");
+          res.body.name.should.equal("nurse");
           done();
         });
     });
