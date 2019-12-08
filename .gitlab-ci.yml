@@ -19,7 +19,7 @@ install_dependencies:
 testing_testing:
   stage: test
   script:
-    - export DBURI="bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688"
+    - export DB_URI="bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688"
     - wget --spider -q http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/
     - npm start &
     - npm test
