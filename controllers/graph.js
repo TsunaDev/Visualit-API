@@ -1,5 +1,6 @@
 const neo4j = require('neo4j-driver').v1;
-const driver = neo4j.driver("bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688", neo4j.auth.basic("neo4j", "test")); // TODO: Intégrer les ID et URI de façon plus modulable
+const dbURI = process.env.DB_URI;
+const driver = neo4j.driver(dbURI, neo4j.auth.basic("neo4j", "test")); // TODO: Intégrer les ID et URI de façon plus modulable
 
 function GraphCall(request, callback) {
   const session = driver.session();
