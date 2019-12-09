@@ -124,8 +124,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 204
 
-        {}
-
 + Request ID invalide (application/json)
 
 + Response 404
@@ -145,8 +143,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
         + name: `Pédiatrie` (string, required) - nouveau nom du service
 
 + Response 204
-
-        {}
 
 
 # Lits [/beds]
@@ -275,7 +271,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
         + to_clean: false (boolean)
         + display_name: `Chambre 420` (string)
 
-+ Request id du lit invalide
++ Request id du lit invalide (application/json)
 
 + Response 404
 
@@ -292,8 +288,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 204
 
-        {}
-
 ## Modification de la propreté d'un lit [PATCH /beds/{bed_id}/clean]
 
 + Parameters
@@ -306,8 +300,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
         + to_clean: false (boolean)
 
 + Response 204
-        
-        {}
 
 
 ## Modification d'un lit [PUT /beds/{bed_id}]
@@ -326,8 +318,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 204
         
-        {}
-
 
 ## Création d'un lit [POST]
 
@@ -353,8 +343,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 204
 
-        {}
-
 # Utilisateurs [/users]
 
 ## Connexion [POST /users/login]
@@ -371,8 +359,6 @@ Toutes les actions qu'il effectuera par la suite sera donc liée à son compte.
 
 + Response 204 (application/json)
 
-        {}
-
 + Request invalide (application/json)
 
     + Attributes
@@ -382,8 +368,6 @@ Toutes les actions qu'il effectuera par la suite sera donc liée à son compte.
 
 + Response 401 (application/json)
 
-        {}
-
 
 ## Déconnexion [POST /users/logout]
 
@@ -392,8 +376,6 @@ Déconnecte l'utilisateur.
 + Request utilisateur connecté (application/json)
 
 + Response 204 (application/json)
-
-        {}
 
 + Request utilisateur non connecté (application/json)
 
@@ -471,8 +453,6 @@ Supprime un utilisateur.
 + Request (application/json)
 
 + Response 204 (application/json)
-
-        {}
 
 ## Modification d'un utilisateur [PUT /users/{user_id}]
 

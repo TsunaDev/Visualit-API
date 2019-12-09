@@ -1,17 +1,29 @@
 const jwt = require('jsonwebtoken');
+const graph = require ('./graph');
+
 module.exports = {
-  logIn: (req, res) => {
-      const username = req.body["username"];
-      const password = req.body["password"];
-      if (!username || !password)
-          return res.sendStatus(401);
-      if (username === "foo" && password === "bar") {
-          let token = jwt.sign({username}, process.env["JWTSECRET"], {
-              'expiresIn': process.env["JWTEXP"]
-          });
-          return res.status(200).send({token, expiresIn: parseInt(process.env.JWTEXP)});
+  logIn: async (req, res) => {
+    const username = req.body["username"];
+    const password = req.body["password"];
+    
+    if (!username || !password)
+      return res.status(401).send({error: {name: "MissingParameter"}});
+    
+    let ret = null;
+
+    await graph.getUser(username, function(result) {
+      if (result.status && result.value.properties.password === password) {
+        let token = jwt.sign({username}, process.env["JWTSECRET"], {
+          'expiresIn': process.env["JWTEXP"]
+        });
+        ret = res.status(200).send({token, expiresIn: process.env.JWTEXP});
+      } else if (result.status) {
+        ret = res.status(401).send({error: {name: "WrongPassword"}});
       } else {
-          return res.sendStatus(401);
+        ret = res.status(401).send({error: result.value});
       }
+    })
+
+    return ret;
   }
 };
