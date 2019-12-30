@@ -51,7 +51,7 @@ module.exports = {
     else {
       await graph.getUser(req.body["username"], function(result) {
         if (result.status)
-          ret = res.status(200).send(result.value.properties);
+          ret = res.status(200).send(result.value[0]);
         else
           ret = res.status(401).send({error: result.value}); // 404?
       });

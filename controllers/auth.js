@@ -12,7 +12,8 @@ module.exports = {
     let ret = null;
 
     await graph.getUser(username, function(result) {
-      if (result.status && result.value.properties.password === password) {
+      console.log(result);
+      if (result.status && result.value[0].password === password) {
         let token = jwt.sign({username}, process.env["JWTSECRET"], {
           'expiresIn': process.env["JWTEXP"]
         });
