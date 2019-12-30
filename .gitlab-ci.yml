@@ -6,6 +6,7 @@ variables:
   e_uid: 9458243-ecf7926d-35c0-4fa1-b765-5a58cdac4da3
   POSTMAN_COLLECTION: https://api.getpostman.com/collections/${c_uid}?apikey=${apiKey}
   POSTMAN_ENVIRONMENT: https://api.getpostman.com/environments/${e_uid}?apikey=${apiKey}
+  DB_URI: bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688
 
 stages:
   - build
@@ -27,7 +28,6 @@ install_dependencies:
 testing_testing:
   stage: test
   script:
-    - export DB_URI="bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688"
     - wget --spider -q http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/
     - npm start &
     - npm test
@@ -36,5 +36,6 @@ postman_job:
   stage: postman
   image: wojciechzurek/newman-ci
   script:
+    - wget --spider -q http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/
     - npm start &
     - newman run ${POSTMAN_COLLECTION} -e ${POSTMAN_ENVIRONMENT}
