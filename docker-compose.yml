@@ -15,11 +15,13 @@ services:
     restart: always
     ports:
       - 3000:3000
+      - 8087:8087
+      - 8088:8088
     environment:
       - DB_URI="bolt://graph:7687"
   graph:
     image: neo4j:latest
-    ports: 
+    ports:
       - 7474:7474
       - 7687:7687
     volumes:
@@ -28,4 +30,4 @@ services:
       - ./graph/plugins:/plugins
     environment:
       - NEO4J_AUTH=neo4j/test
-    
+
