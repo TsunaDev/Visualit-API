@@ -29,33 +29,32 @@ function listBeds(req, res) {
 		return res.sendStatus(400)
 	}
 
-	res.json({
-	   "beds": [
-     	  {
-     	      "bed_id": 1,
-     	      "service_id": 1,
-     	      "status": "Free",
-     	      "to_clean": true,
-              "display_name": "Chambre 402",
-          },
-          {
-              "bed_id": 1053,
-              "service_id": 1,
-              "status": "Leaving",
-              "to_clean": true,
-              "display_name": "Chambre 322",
-          },
-          {
-          	"bed_id": 321,
-          	"service_id": 1,
-          	"status": "Busy",
-          	"to_clean": true,
-          	"display_name": "Chambre 107",
-          }
-       ]
-    })
     res.status(200)
-	return res.end()
+	return res.json({
+	   "beds": [
+			  {
+				  "bed_id": 1,
+				  "service_id": 1,
+				  "status": "Free",
+				  "to_clean": true,
+				 "display_name": "Chambre 402",
+			 },
+			 {
+				 "bed_id": 1053,
+				 "service_id": 1,
+				 "status": "Leaving",
+				 "to_clean": true,
+				 "display_name": "Chambre 322",
+			 },
+			 {
+				"bed_id": 321,
+				"service_id": 1,
+				"status": "Busy",
+				"to_clean": true,
+				"display_name": "Chambre 107",
+			 }
+		  ]
+	   })
 }
 
 function getBed(req, res) {
@@ -76,17 +75,17 @@ function getBed(req, res) {
  		return res.sendStatus(404)
 	}
 
-	res.json(
-		{
-		  "bed_id": 10,
-		  "service_id": 1,
-		  "status": "Free",
-		  "to_clean": false,
-		  "display_name": "Chambre 420"
-		}
-	)
+	res.status(200)
 
-	return res.sendStatus(200)
+	return res.json(
+           		{
+           		  "bed_id": 10,
+           		  "service_id": 1,
+           		  "status": "Free",
+           		  "to_clean": false,
+           		  "display_name": "Chambre 420"
+           		}
+           	)
 }
 
 function deleteBed(req, res) {
