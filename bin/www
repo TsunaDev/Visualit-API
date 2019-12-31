@@ -4,22 +4,29 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('api:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('api:server');
+const http = require('http');
+const fs = require('fs');
+const https = require('https');
 
-/**
- * Get port from environment and store in Express.
- */
+let server;
+let port;
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+try {
+  let privateKey  = fs.readFileSync('../certs/fullchain.pem', 'utf8');
+  let certificate = fs.readFileSync('../certs/privkey.pem', 'utf8');
 
-/**
- * Create HTTP server.
- */
+  let credentials = {key: privateKey, cert: certificate};
 
-var server = http.createServer(app);
+  server = https.createServer(credentials, app);
+  port = normalizePort(process.env.PORT || '443');
+  app.set('port', port);
+} catch (e) {
+  port = normalizePort(process.env.PORT || '3000');
+  app.set('port', port);
+  server = http.createServer(app);
+}
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -34,7 +41,7 @@ server.on('listening', onListening);
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  const port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -58,7 +65,7 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
+  const bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
@@ -82,8 +89,8 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
+  const addr = server.address();
+  const bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
