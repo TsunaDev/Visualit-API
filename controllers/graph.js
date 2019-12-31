@@ -36,7 +36,7 @@ module.exports = {
   },
 
   getUser: (username, callback) => {
-    return GraphCall('MATCH (u:User) WHERE u.name = "' + username + '" RETURN u', callback);
+    return GraphCall('MATCH (u:User)-[ROLE]->(r:Role) WHERE u.name = "' + username + '" RETURN collect(u {.*, role:r.name})', callback);
   },
 
   getAllUsers: (callback) => {
