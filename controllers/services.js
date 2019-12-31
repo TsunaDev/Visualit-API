@@ -1,5 +1,6 @@
 function listServices(req, res) {
-	res.json(
+	res.status(200)
+	return res.json(
 		{
 			"services": [
 				{
@@ -25,7 +26,6 @@ function listServices(req, res) {
 			]
 		}
 	)
-	return res.sendStatus(200)
 }
 
 function deleteService(req, res) {
