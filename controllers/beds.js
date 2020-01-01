@@ -1,4 +1,7 @@
-function listBeds(req, res) {
+const graph = require ('./graph');
+
+
+async function listBeds(req, res) {
 	var service_id = req.query.service_id
 	var status = req.query.status
 	var to_clean = req.query.to_clean
@@ -29,35 +32,22 @@ function listBeds(req, res) {
 		return res.sendStatus(400)
 	}
 
-    res.status(200)
-	return res.json({
-	   "beds": [
-			  {
-				  "bed_id": 1,
-				  "service_id": 1,
-				  "status": "Free",
-				  "to_clean": true,
-				 "display_name": "Chambre 402",
-			 },
-			 {
-				 "bed_id": 1053,
-				 "service_id": 1,
-				 "status": "Leaving",
-				 "to_clean": true,
-				 "display_name": "Chambre 322",
-			 },
-			 {
-				"bed_id": 321,
-				"service_id": 1,
-				"status": "Busy",
-				"to_clean": true,
-				"display_name": "Chambre 107",
-			 }
-		  ]
-	   })
+	let ret = null;
+	graph.listBed(service_id, status, to_clean, (result) => {
+	    res.status(200)
+	    console.log(result)
+	    if (result.status == false && result.value.code == "No record found.") {
+	    	ret = res.json({"beds": []})
+	    } else {
+			ret = res.json({
+		   		"beds": result.value
+	   		})
+	   	}
+	})
+	return ret;
 }
 
-function getBed(req, res) {
+async function getBed(req, res) {
 	var bed_id = req.params.bed_id
 
 
@@ -75,17 +65,15 @@ function getBed(req, res) {
  		return res.sendStatus(404)
 	}
 
-	res.status(200)
+	let ret = null;
+	 await graph.getBed(bed_id, (result) => {
+		console.log(result)
+		res.status(200)
+		let = res.json(result)
+	})
 
-	return res.json(
-           		{
-           		  "bed_id": 10,
-           		  "service_id": 1,
-           		  "status": "Free",
-           		  "to_clean": false,
-           		  "display_name": "Chambre 420"
-           		}
-           	)
+	return ret;
+
 }
 
 function deleteBed(req, res) {
@@ -212,7 +200,7 @@ function cleanlinessBed(req, res) {
 	return res.sendStatus(204)
 }
 
-function createBed(req, res) {
+async function createBed(req, res) {
 	var status = req.body.status
 	var to_clean = req.body.to_clean
 	var display_name = req.body.display_name
@@ -243,7 +231,19 @@ function createBed(req, res) {
 		return res.sendStatus(400)
 	}
 
-	return res.sendStatus(201)
+	let ret = null
+	await graph.createBed(status, to_clean, display_name, service_id, (result) => {
+		if (result.status) {
+			ret = res.sendStatus(201)
+		} else if (result.value.code == "No record found.") {
+			res.status(400)
+			ret = res.send({error: "Service id not found."})
+		} else {
+			res.status(400)
+			ret = res.send({error: result.value})
+		}
+	})
+	return ret;
 }
 
 module.exports = {
