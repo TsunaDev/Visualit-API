@@ -127,7 +127,7 @@ module.exports = {
 	var service_id = req.body.service_id
   */
   createBed: (status, to_clean, display_name, service_id, callback) => {
-    return GraphCall('MATCH (s:Service) WHERE ID(s) = ' + service_id + ' CREATE (b:Bed {name: "' + display_name + '", to_clean: ' + to_clean + ', status: "' + status + '"})-[:SERVICE]->(s) RETURN b', callback);
+    return GraphCall('MATCH (s:Service) WHERE ID(s) = ' + service_id + ' CREATE (b:Bed {name: "' + display_name + '", to_clean: ' + to_clean + ', status: "(' + status + ')"})-[:SERVICE]->(s) RETURN b', callback);
   },
 
   getBed: (bed_id, callback) => {
@@ -151,15 +151,15 @@ module.exports = {
   	}
   	if (!to_clean) {
   		if (!service_id) {
-	  		return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ' + status + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+	  		return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE (' + status + ') RETURN collect(b {.*, service_id:ID(s)})', callback)
   		} else {
-  			return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ' + status + ' AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+  			return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
   		}
   	}
 	if (!service_id) {
-		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE ' + status + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') RETURN collect(b {.*, service_id:ID(s)})', callback)
   	} else {
-  		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE ' + status + ' AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+  		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
   	}
   },
 
