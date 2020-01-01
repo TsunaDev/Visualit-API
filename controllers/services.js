@@ -1,31 +1,19 @@
-function listServices(req, res) {
-	res.status(200)
-	return res.json(
-		{
-			"services": [
-				{
-					"name": "Cardiologie",
-					"id": 1
-				},
-				{
-					"name": "Urgences",
-					"id": 2
-				},
-				{
-					"name": "Radiologie",
-					"id": 4
-				},
-				{
-					"name": "Pédiatrie",
-					"id": 7
-				},
-				{
-					"name": "Maternité",
-					"id": 8
-				}
-			]
+const graph = require ('./graph');
+
+async function listServices(req, res) {
+	let ret = null
+	graph.listServices((result) => {
+		res.status(200)
+		console.log(result)
+		if (result.status == false && result.value.code == "No record found.") {
+			ret = res.json({"services": []})
+		} else {
+			ret = res.json({
+				"services": result.value
+			})
 		}
-	)
+	})
+	return ret;
 }
 
 function deleteService(req, res) {
@@ -73,7 +61,7 @@ function modifyService(req, res) {
 	return res.sendStatus(204)
 }
 
-function createService(req, res) {
+async function createService(req, res) {
 	var name = req.body.name
 
 	if (!name || name === "") {
@@ -81,7 +69,14 @@ function createService(req, res) {
 		res.status(400)
 		return res.end()
 	}
-	res.status(204)
+	await graph.createService(name, (result) => {
+		if (result.status) {
+			res.status(201)
+		} else {
+			res.status(401)
+			res.statusMessage = result.value
+		}
+	})
  	return res.end()
  }
 
