@@ -16,16 +16,20 @@ async function listBeds(req, res) {
 	}
 
 	if (status) {
-		status.forEach((v) =>  {
+		await status.forEach((v, i) =>  {
 		 	if (!["Free", "Leaving", "Busy"].includes(v)) {
 				res.statusMessage = `Invalid '${v}' status.`
 				res.status(400)
 			}
+			status[i] = "b.status =\"" + v + "\""
 		})
+		status = status.join(" OR ")
+		console.log(status)
 		if (res.statusCode == 400) {
 			return res.end()
 		}
 	}
+	console.log(status)
 
 	if (to_clean && !["false", "true"].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
@@ -113,10 +117,10 @@ function modifyBed(req, res) {
 		res.statusMessage = "bed_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 1053, 321].includes(bed_id)) {
+/*if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
  		return res.sendStatus(404)
-	}
+	}*/
 
 	if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
 		res.statusMessage = `Invalid '${status}' status.`
