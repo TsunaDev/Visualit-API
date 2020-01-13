@@ -21,7 +21,7 @@ async function listBeds(req, res) {
 				res.statusMessage = `Invalid '${v}' status.`
 				res.status(400)
 			}
-			status[i] = "b.status =\"" + v + "\""
+			status[i] = "b.status =\"" + '(' + v + ')' + "\""
 		})
 		status = status.join(" OR ")
 		console.log(status)
@@ -252,12 +252,12 @@ async function createBed(req, res) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
-/*	if (to_clean == "false" || to_clean == 0) {
-		to_clean = false
+	if (to_clean == "false") {
+		to_clean = '"false"'
 	}
-	if (to_clean == "true" || to_clean == 1) {
-		to_clean = true
-	}*/
+	if (to_clean == "true") {
+		to_clean = '"true"'
+	}
 
 	if (!display_name || display_name === "") {
 		res.statusMessage = "Invalid name"
@@ -275,7 +275,7 @@ async function createBed(req, res) {
 	}
 
 	let ret = null
-	await graph.createBed(status, to_clean, display_name, service_id, (result) => {
+	await graph.createBed('(' + status + ')', to_clean, display_name, service_id, (result) => {
 		if (result.status) {
 			ret = res.sendStatus(201)
 		} else if (result.value.code == "No record found.") {
