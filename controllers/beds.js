@@ -31,10 +31,24 @@ async function listBeds(req, res) {
 	}
 	console.log(status)
 
-	if (to_clean && !["false", "true"].includes(to_clean)) {
+	tmp_to_clean = parseInt(to_clean, 10);
+    if (!isNaN(to_clean)) {
+    	to_clean = tmp_to_clean
+    }
+    console.log(to_clean)
+
+	if (typeof to_clean != "undefined" && !['"false"', '"true"', "false", "true", 0, 1].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
+
+/*	if (to_clean == "false") {
+		to_clean = false
+	}
+	if (to_clean == "true") {
+		to_clean = true
+	}*/
+
 
 	let ret = null;
 	graph.listBed(service_id, status, to_clean, (result) => {
@@ -64,16 +78,21 @@ async function getBed(req, res) {
 		res.statusMessage = "bed_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 1053, 321].includes(bed_id)) {
+/*	if (![1, 1053, 321].includes(bed_id)) {
 		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
  		return res.sendStatus(404)
-	}
+	}*/
 
 	let ret = null;
 	 await graph.getBed(bed_id, (result) => {
 		console.log(result)
-		res.status(200)
-		let = res.json(result)
+		if (result.value.length == 0) {
+			res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
+ 			let = res.sendStatus(404)
+		} else {
+			res.status(200)
+			let = res.json(result.value[0])
+		}
 	})
 
 	return ret;
@@ -104,7 +123,7 @@ function modifyBed(req, res) {
 	var bed_id = req.params.bed_id
 	var status = req.body.status
 	var to_clean = req.body.to_clean
-	var display_name = req.body.display_name
+	var display_name = req.body.name
 	var service_id = req.body.service_id
 
 
@@ -127,13 +146,19 @@ function modifyBed(req, res) {
 		return res.sendStatus(400)
 	}
 
-	if (!to_clean || !["false", "true"].includes(to_clean)) {
+	if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
+/*	if (to_clean == "false") {
+		to_clean = false
+	}
+	if (to_clean == "true") {
+		to_clean = true
+	}*/
 
 	if (!display_name || display_name === "") {
-		res.statusMessage = "Invalid display_name"
+		res.statusMessage = "Invalid name"
 		return res.sendStatus(400)
 	}
 
@@ -196,10 +221,16 @@ function cleanlinessBed(req, res) {
  		return res.sendStatus(404)
 	}
 
-	if (!to_clean || !["false", "true"].includes(to_clean)) {
+	if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
+/*  if (to_clean == "false") {
+		to_clean = false
+	}
+	if (to_clean == "true") {
+		to_clean = true
+	}*/
 
 	return res.sendStatus(204)
 }
@@ -207,21 +238,29 @@ function cleanlinessBed(req, res) {
 async function createBed(req, res) {
 	var status = req.body.status
 	var to_clean = req.body.to_clean
-	var display_name = req.body.display_name
+	var display_name = req.body.name
 	var service_id = req.body.service_id
 
 	if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
 		res.statusMessage = `Invalid '${status}' status.`
 		return res.sendStatus(400)
 	}
+	console.log(typeof to_clean)
+	console.log(status)
 
-	if (!to_clean || !["false", "true"].includes(to_clean)) {
+	if (typeof to_clean === "undefined" || ![false, true, "false", "true", 0, 1].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
+/*	if (to_clean == "false" || to_clean == 0) {
+		to_clean = false
+	}
+	if (to_clean == "true" || to_clean == 1) {
+		to_clean = true
+	}*/
 
 	if (!display_name || display_name === "") {
-		res.statusMessage = "Invalid display_name"
+		res.statusMessage = "Invalid name"
 		return res.sendStatus(400)
 	}
 

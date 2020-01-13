@@ -38,7 +38,7 @@ Chaque lit peut être de trois statuts différents:
 
 Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqué par le booléen *to_clean*.
 
-*display_name* est le nom du lit que verra le personnel de l'hôpital.
+*name* est le nom du lit que verra le personnel de l'hôpital.
 
 
 ## Utilisateurs
@@ -171,21 +171,21 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
                     "service_id": 1,
                     "status": "Free",
                     "to_clean": true,
-                    "display_name": "Chambre 402",
+                    "name": "Chambre 402",
                 },
                 {
                     "bed_id": 1053,
                     "service_id": 1,
                     "status": "Leaving",
                     "to_clean": true,
-                    "display_name": "Chambre 322",
+                    "name": "Chambre 322",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 1,
                     "status": "Busy",
                     "to_clean": true,
-                    "display_name": "Chambre 107",
+                    "name": "Chambre 107",
                 }
             ]
         }
@@ -206,35 +206,35 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
                     "service_id": 7,
                     "status": "Free",
                     "to_clean": true,
-                    "display_name": "Chambre 402",
+                    "name": "Chambre 402",
                 },
                 {
                     "bed_id": 1053,
                     "service_id": 7,
                     "status": "Leaving",
                     "to_clean": false,
-                    "display_name": "Chambre 32",
+                    "name": "Chambre 32",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 7,
                     "status": "Busy",
                     "to_clean": false,
-                    "display_name": "Chambre 109",
+                    "name": "Chambre 109",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 8,
                     "status": "Busy",
                     "to_clean": false,
-                    "display_name": "Chambre 203",
+                    "name": "Chambre 203",
                 },
                 {
                     "bed_id": 321,
                     "service_id": 8,
                     "status": "Busy",
                     "to_clean": true,
-                    "display_name": "Chambre 315",
+                    "name": "Chambre 315",
                 }
             ]
         }
@@ -269,7 +269,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
         + service_id: 1 (number)
         + status: Free (Status)
         + to_clean: false (boolean)
-        + display_name: `Chambre 420` (string)
+        + name: `Chambre 420` (string)
 
 + Request id du lit invalide (application/json)
 
@@ -313,7 +313,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
     + Attributes
         + status: Free (Status)
         + to_clean: false (boolean)
-        + display_name: `Chambre 420` (string)
+        + name: `Chambre 420` (string)
         + service_id: 1 (number)
 
 + Response 204
@@ -329,7 +329,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
             + Default: Free
         + to_clean: false (boolean, optional) - Indique si le lit doit être nettoyé ou non
             + Default: false
-        + display_name: `Chambre 420` (string) - Nom du lit que le personnel hospitalier verra
+        + name: `Chambre 420` (string) - Nom du lit que le personnel hospitalier verra
 
 + Response 201 (application/json)
 

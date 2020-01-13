@@ -127,39 +127,39 @@ module.exports = {
 	var service_id = req.body.service_id
   */
   createBed: (status, to_clean, display_name, service_id, callback) => {
-    return GraphCall('MATCH (s:Service) WHERE ID(s) = ' + service_id + ' CREATE (b:Bed {name: "' + display_name + '", to_clean: ' + to_clean + ', status: "(' + status + ')"})-[:SERVICE]->(s) RETURN b', callback);
+    return GraphCall('MATCH (s:Service) WHERE ID(s) = ' + service_id + ' CREATE (b:Bed {name: "' + display_name + '", to_clean: ' + to_clean + ', status: "' + status + '"})-[:SERVICE]->(s) RETURN b', callback);
   },
 
   getBed: (bed_id, callback) => {
-    return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ID(b) = "' + bed_id + '" RETURN collect(b {.*, service_id:ID(s)})', callback)
+    return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ID(b) = ' + bed_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   },
 
   listBed: (service_id, status, to_clean, callback) => {
-  	if (!to_clean && !status) {
+  	if (typeof to_clean == "undefined" && !status) {
   		if (!service_id) {
-	  		return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) RETURN collect(b {.*, service_id:ID(s)})', callback)
+	  		return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   		} else {
-  			return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+  			return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   		}
   	}
   	if (!status) {
   		if (!service_id) {
-	  		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) RETURN collect(b {.*, service_id:ID(s)})', callback)
+	  		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   		} else {
-  			return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+  			return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   		}
   	}
-  	if (!to_clean) {
+  	if (typeof to_clean == "undefined") {
   		if (!service_id) {
-	  		return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE (' + status + ') RETURN collect(b {.*, service_id:ID(s)})', callback)
+	  		return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE (' + status + ') RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   		} else {
-  			return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+  			return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   		}
   	}
 	if (!service_id) {
-		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') RETURN collect(b {.*, service_id:ID(s)})', callback)
+		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   	} else {
-  		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s)})', callback)
+  		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   	}
   },
 
