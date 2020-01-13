@@ -133,7 +133,19 @@ module.exports = {
   getBed: (bed_id, callback) => {
     return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ID(b) = ' + bed_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   },
-
+  modifyClean: (bed_id, to_clean, callback) => {
+    return GraphCall('MATCH (b:Bed) WHERE ID(b) = ' + bed_id + ' SET b.to_clean = ' + to_clean + ' RETURN b', callback)
+  },
+  modifyState: (bed_id, status, callback) => {
+  	return GraphCall('MATCH (b:Bed) WHERE ID(b) = ' + bed_id + ' SET b.status = "' + status + '" RETURN b', callback)
+  },
+  modifyName: (bed_id, display_name, callback) => {
+	return GraphCall('MATCH (b:Bed) WHERE ID(b) = ' + bed_id + ' SET b.name = "' + display_name + '" RETURN b', callback)
+  },
+  modifyBedService: (bed_id, service_id, callback) => {
+  	GraphCall("MATCH (b:Bed)-[r:SERVICE]->(:Service) WHERE ID(b) = " + bed_id + " DELETE r RETURN b", (r) => {})
+ 	return GraphCall('MATCH (b:Bed), (s:Service) WHERE ID(b) = ' + bed_id + ' AND ID(s) = '+ service_id +' CREATE (b)-[:SERVICE]->(s) RETURN b', callback)
+  },
   listBed: (service_id, status, to_clean, callback) => {
   	if (typeof to_clean == "undefined" && !status) {
   		if (!service_id) {
@@ -162,13 +174,30 @@ module.exports = {
   		return GraphCallTransformInteger('MATCH (b:Bed {to_clean:' + to_clean + '})-[SERVICE]->(s:Service) WHERE (' + status + ') AND ID(s) = ' + service_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
   	}
   },
+  getUnboundedBed: (callback) => {
+  	return GraphCallTransformInteger("MATCH (b:Bed) WHERE NOT (b)-[:SERVICE]-() RETURN collect(b {.*, bed_id: ID(b)})", callback)
+  },
+  unboundedBedDelete: (service_id, callback) => {
+  	if (!service_id) {
+  	  	return GraphCall("MATCH (b:Bed) WHERE NOT (b)-[:SERVICE]-() DETACH DELETE b RETURN (b)", callback)
+	} else {
+	  	return GraphCall("MATCH (b:Bed{old:" + service_id + "}) WHERE NOT (b)-[:SERVICE]-() DETACH DELETE b RETURN (b)", callback)
+	}
+  },
 
 	// SERVICES
 
   createService: (name, callback) => {
     return GraphCall('CREATE (s:Service {name: "' + name + '"}) RETURN s', callback);
   },
+  modifyService: (name, service_id, callback) => {
+  	return GraphCall("MATCH (s:Service) WHERE ID(s) = " + service_id + " SET s.name = \"" + name + "\" RETURN s", callback);
+  },
+  deleteService: (service_id, callback) => {
+   	GraphCall("MATCH (b:Bed)-[r:SERVICE]->(s:Service) WHERE ID(s) = " + service_id + " SET b.old = ID(s), b.oldName = s.name DELETE r", (r) => {});
+ 	return GraphCall("MATCH (s:Service) WHERE ID(s) = " + service_id + " SET s: Deleted RETURN s", callback);
+  },
   listServices: (callback) => {
-    return GraphCallTransformInteger('MATCH (s:Service) RETURN collect(s {.*, id: ID(s)})', callback);
+    return GraphCallTransformInteger('MATCH (s:Service) WHERE NOT s:Deleted RETURN collect(s {.*, id: ID(s)})', callback);
   },
 }

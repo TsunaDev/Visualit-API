@@ -99,6 +99,41 @@ async function getBed(req, res) {
 
 }
 
+async function getUnboundedBed(req, res) {
+	let ret = null
+
+	await graph.getUnboundedBed((result) => {
+		res.status(200)
+		ret = res.json(result.value)
+	})
+	return (ret)
+}
+
+async function unboundedBedDelete(req, res) {
+	let ret = null
+	var service_id = req.query.service_id
+
+	if (service_id) {
+		service_id = parseInt(service_id, 10);
+		if (isNaN(service_id)) {
+			res.statusMessage = "Service_id should be an integer."
+			return res.sendStatus(400)
+		}
+	}
+	await graph.unboundedBedDelete(service_id, (result) => {
+			if (result.status) {
+    			ret = res.sendStatus(204)
+    		} else if (result.value.code == "No record found.") {
+    			res.status(400)
+    			ret = res.send({error: "Service id not found."})
+    		} else {
+    			res.status(400)
+    			ret = res.send({error: result.value})
+    		}
+	})
+	return ret
+}
+
 function deleteBed(req, res) {
 	var bed_id = req.params.bed_id
 
@@ -175,10 +210,11 @@ function modifyBed(req, res) {
 	return res.sendStatus(204)
 }
 
-function modifyBedState(req, res) {
+async function modifyBedState(req, res) {
  	var bed_id = req.params.bed_id
  	var status = req.body.status
 
+	let ret = null
 
 	if (!bed_id) {
 		res.statusMessage = "The bed_id is required."
@@ -189,22 +225,29 @@ function modifyBedState(req, res) {
 		res.statusMessage = "bed_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 1053, 321].includes(bed_id)) {
-		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.sendStatus(404)
-	}
-
 	if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
 		res.statusMessage = `Invalid '${status}' status.`
 		return res.sendStatus(400)
 	}
+	await graph.modifyState(bed_id, '(' + status + ')', (result) => {
+			if (result.status) {
+    			ret = res.sendStatus(204)
+    		} else if (result.value.code == "No record found.") {
+				res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
+    			ret = res.sendStatus(400)
+    		} else {
+    			res.status(400)
+    			ret = res.send({error: result.value})
+    		}
+		})
 
- 	return res.sendStatus(204)
+ 	return ret
  }
 
-function cleanlinessBed(req, res) {
+async function cleanlinessBed(req, res) {
 	var bed_id = req.params.bed_id
 	var to_clean = req.body.to_clean
+	let ret = null
 
 
 	if (!bed_id) {
@@ -216,23 +259,105 @@ function cleanlinessBed(req, res) {
 		res.statusMessage = "bed_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 1053, 321].includes(bed_id)) {
-		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.sendStatus(404)
-	}
 
+	console.log(req.body)
 	if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
-/*  if (to_clean == "false") {
-		to_clean = false
+  if (to_clean === "false") {
+		to_clean = '"false"'
 	}
-	if (to_clean == "true") {
-		to_clean = true
-	}*/
+	if (to_clean === "true") {
+		to_clean = '"true"'
+	}
+	console.log(to_clean)
+	await graph.modifyClean(bed_id, to_clean, (result) => {
+	console.log(result)
+			if (result.status) {
+    			ret = res.sendStatus(204)
+    		} else if (result.value.code == "No record found.") {
+				res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
+    			ret = res.sendStatus(400)
+    		} else {
+    			res.status(400)
+    			ret = res.send({error: result.value})
+    		}
+		})
 
-	return res.sendStatus(204)
+	return ret
+}
+
+async function modifyBedName(req, res) {
+	var bed_id = req.params.bed_id
+	var name = req.body.name
+	let ret = null
+
+	if (!bed_id) {
+		res.statusMessage = "The bed_id is required."
+		return res.sendStatus(404)
+	}
+	bed_id = parseInt(bed_id, 10);
+	if (isNaN(bed_id)) {
+		res.statusMessage = "bed_id should be an integer."
+		return res.sendStatus(400)
+	}
+
+	if (typeof name == "undefined" || name == "") {
+		res.statusMessage = "name should be a string"
+		return res.sendStatus(400)
+	}
+	await graph.modifyName(bed_id, name, (result) => {
+		console.log(result)
+		if (result.status) {
+    		ret = res.sendStatus(204)
+    	} else if (result.value.code == "No record found.") {
+			res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
+    		ret = res.sendStatus(400)
+    	} else {
+    		res.status(400)
+    		ret = res.send({error: result.value})
+    	}
+	})
+
+	return ret
+}
+
+async function modifyBedService(req, res) {
+	var bed_id = req.params.bed_id
+	var service_id = req.body.service_id
+	let ret = null
+
+
+	if (!bed_id) {
+		res.statusMessage = "The bed_id is required."
+		return res.sendStatus(404)
+	}
+	bed_id = parseInt(bed_id, 10);
+	if (isNaN(bed_id)) {
+		res.statusMessage = "bed_id should be an integer."
+		return res.sendStatus(400)
+	}
+	service_id = parseInt(service_id, 10);
+
+	if (typeof service_id == "undefined" || isNaN(service_id)) {
+		res.statusMessage = "service_id should be a boolean"
+		return res.sendStatus(400)
+	}
+	await graph.modifyBedService(bed_id, service_id, (result) => {
+		console.log(result)
+		if (result.status) {
+    		ret = res.sendStatus(204)
+    	} else if (result.value.code == "No record found.") {
+			res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
+    		ret = res.sendStatus(400)
+    	} else {
+    		res.status(400)
+    		ret = res.send({error: result.value})
+    	}
+	})
+
+	return ret
 }
 
 async function createBed(req, res) {
@@ -292,9 +417,13 @@ async function createBed(req, res) {
 module.exports = {
   listBeds: listBeds,
   getBed: getBed,
+  getUnboundedBed: getUnboundedBed,
+  unboundedBedDelete: unboundedBedDelete,
   createBed: createBed,
   deleteBed: deleteBed,
   modifyBed: modifyBed,
   cleanlinessBed: cleanlinessBed,
-  modifyBedState: modifyBedState
+  modifyBedState: modifyBedState,
+  modifyBedName: modifyBedName,
+  modifyBedService: modifyBedService
 };
