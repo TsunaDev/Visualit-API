@@ -16,8 +16,9 @@ async function listServices(req, res) {
 	return ret;
 }
 
-function deleteService(req, res) {
+async function deleteService(req, res) {
 	var service_id = req.params.service_id
+	let ret = null
 
 	if (!service_id) {
 		res.statusMessage = "The service_id is required for service deletion"
@@ -28,15 +29,20 @@ function deleteService(req, res) {
 		res.statusMessage = "Service_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 2, 4, 7, 8].includes(service_id)) {
-		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
- 		return res.sendStatus(404)
-	}
+	graph.deleteService(service_id, (result) => {
+		console.log(result)
+		if (result.status == false) {
+       		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
+      		ret = res.sendStatus(404)
+       	} else {
+       		ret = res.sendStatus(204)
+       	}
+	})
 
-	return res.sendStatus(204)
+	return ret
 }
 
-function modifyService(req, res) {
+async function modifyService(req, res) {
 	var service_id = req.params.service_id
 	var name = req.body.name
 
@@ -53,12 +59,16 @@ function modifyService(req, res) {
 		res.statusMessage = "Service_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 2, 4, 7, 8].includes(service_id)) {
-		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
-		return res.sendStatus(404)
-	}
 
-	return res.sendStatus(204)
+	await graph.modifyService(name, service_id, (result) => {
+		if (result.status) {
+			res.status(204)
+		} else {
+			res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
+			res.status(404)
+		}
+	})
+ 	return res.end()
 }
 
 async function createService(req, res) {
