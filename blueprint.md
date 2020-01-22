@@ -260,7 +260,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 404
 
-## Modification de l'état d'un lit [PATCH /beds/{bed_id}/status]
+## Modification de l'état d'un lit [POST /beds/{bed_id}/status]
 
 + Parameters
 
@@ -273,7 +273,7 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 204
 
-## Modification de la propreté d'un lit [PATCH /beds/{bed_id}/clean]
+## Modification de la propreté d'un lit [POST /beds/{bed_id}/clean]
 
 + Parameters
 
@@ -285,24 +285,6 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
         + to_clean: false (boolean)
 
 + Response 204
-
-
-## Modification d'un lit [PUT /beds/{bed_id}]
-
-+ Parameters
-
-    + bed_id: 1 (number, required) - l'id du lit à modifier
-
-+ Request modification du lit (application/json)
-
-    + Attributes
-        + status: Free (Status)
-        + to_clean: false (boolean)
-        + name: `Chambre 420` (string)
-        + service_id: 1 (number)
-
-+ Response 204
-        
 
 ## Création d'un lit [POST]
 
