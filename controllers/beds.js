@@ -21,7 +21,7 @@ async function listBeds(req, res) {
 				res.statusMessage = `Invalid '${v}' status.`
 				res.status(400)
 			}
-			status[i] = "b.status =\"" + '(' + v + ')' + "\""
+			status[i] = "b.status =\"" + v + "\""
 		})
 		status = status.join(" OR ")
 		console.log(status)
@@ -37,23 +37,22 @@ async function listBeds(req, res) {
     }
     console.log(to_clean)
 
-	if (typeof to_clean != "undefined" && !['"false"', '"true"', "false", "true", 0, 1].includes(to_clean)) {
+	if (typeof to_clean != "undefined" && !["false", "true", 0, 1].includes(to_clean)) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
 
-/*	if (to_clean == "false") {
+	if (to_clean == "false" || to_clean == 0) {
 		to_clean = false
 	}
-	if (to_clean == "true") {
+	if (to_clean == "true" || to_clean == 1) {
 		to_clean = true
-	}*/
+	}
 
 
 	let ret = null;
 	graph.listBed(service_id, status, to_clean, (result) => {
 	    res.status(200)
-	    console.log(result)
 	    if (result.status == false && result.value.code == "No record found.") {
 	    	ret = res.json({"beds": []})
 	    } else {
@@ -78,14 +77,9 @@ async function getBed(req, res) {
 		res.statusMessage = "bed_id should be an integer."
 		return res.sendStatus(400)
 	}
-/*	if (![1, 1053, 321].includes(bed_id)) {
-		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.sendStatus(404)
-	}*/
 
 	let ret = null;
 	 await graph.getBed(bed_id, (result) => {
-		console.log(result)
 		if (result.value.length == 0) {
 			res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
  			let = res.sendStatus(404)
@@ -134,7 +128,7 @@ async function unboundedBedDelete(req, res) {
 	return ret
 }
 
-function deleteBed(req, res) {
+async function deleteBed(req, res) {
 	var bed_id = req.params.bed_id
 
 	if (!bed_id) {
@@ -146,12 +140,18 @@ function deleteBed(req, res) {
 		res.statusMessage = "bed_id should be an integer."
 		return res.sendStatus(400)
 	}
-	if (![1, 1053, 321].includes(bed_id)) {
-		res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
- 		return res.sendStatus(404)
-	}
-
-	return res.sendStatus(204)
+	await graph.deleteBed(bed_id, (result) => {
+			if (result.status) {
+    			ret = res.sendStatus(204)
+    		} else if (result.value.code == "No record found.") {
+				res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
+    			ret = res.sendStatus(400)
+    		} else {
+    			res.status(400)
+    			ret = res.send({error: result.value})
+    		}
+	})
+	return ret
 }
 
 function modifyBed(req, res) {
@@ -229,7 +229,7 @@ async function modifyBedState(req, res) {
 		res.statusMessage = `Invalid '${status}' status.`
 		return res.sendStatus(400)
 	}
-	await graph.modifyState(bed_id, '(' + status + ')', (result) => {
+	await graph.modifyState(bed_id, status, (result) => {
 			if (result.status) {
     			ret = res.sendStatus(204)
     		} else if (result.value.code == "No record found.") {
@@ -265,13 +265,13 @@ async function cleanlinessBed(req, res) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
-  if (to_clean === "false") {
-		to_clean = '"false"'
+
+	if (to_clean == "false" || to_clean == 0) {
+		to_clean = false
 	}
-	if (to_clean === "true") {
-		to_clean = '"true"'
+	if (to_clean == "true" || to_clean == 1) {
+		to_clean = true
 	}
-	console.log(to_clean)
 	await graph.modifyClean(bed_id, to_clean, (result) => {
 	console.log(result)
 			if (result.status) {
@@ -377,11 +377,11 @@ async function createBed(req, res) {
 		res.statusMessage = "to_clean should be a boolean"
 		return res.sendStatus(400)
 	}
-	if (to_clean == "false") {
-		to_clean = '"false"'
+	if (to_clean == "false" || to_clean == false || to_clean == 0) {
+		to_clean = false
 	}
-	if (to_clean == "true") {
-		to_clean = '"true"'
+	if (to_clean == true || to_clean == "true" || to_clean == 1) {
+		to_clean = true
 	}
 
 	if (!display_name || display_name === "") {
@@ -400,7 +400,7 @@ async function createBed(req, res) {
 	}
 
 	let ret = null
-	await graph.createBed('(' + status + ')', to_clean, display_name, service_id, (result) => {
+	await graph.createBed(status, to_clean, display_name, service_id, (result) => {
 		if (result.status) {
 			ret = res.sendStatus(201)
 		} else if (result.value.code == "No record found.") {

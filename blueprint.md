@@ -41,16 +41,6 @@ Chaque lit peut également avoir besoin d'être nettoyé ou non. Cela est indiqu
 *name* est le nom du lit que verra le personnel de l'hôpital.
 
 
-## Utilisateurs
-
-Les utilisateurs du logiciel Visualit, peuvent être de 4 types différents:
-
-- *Admin* : L'administrateur, il possède tous les droits décrits dans cette documentation, notamment sur les autres comptes utilisateurs, et services.
-- *Manager* : Le chef de service a tous les droits sur les lits concernants son service.
-- *Cleaner* : Le personnel d'entretien a les droits de modification du status de propreté d'une chambre.
-- *Nurse* : Les infirmiers peuvent modifier les états des lits (propreté et occupation)
-
-
 ## Erreurs
 Les [statuts d'erreur http](https://github.com/for-GET/know-your-http-well/blob/master/status-codes.md) sont utilisés.
 
@@ -61,11 +51,6 @@ Les [statuts d'erreur http](https://github.com/for-GET/know-your-http-well/blob/
 + Busy (string)
 + Leaving (string)
 
-## User (enum)
-+ Admin (string)
-+ Manager (string)
-+ Cleaner (string)
-+ Nurse (string)
 
 # Services [/services]
 
@@ -171,21 +156,21 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
                     "service_id": 1,
                     "status": "Free",
                     "to_clean": true,
-                    "name": "Chambre 402",
+                    "name": "Chambre 402"
                 },
                 {
                     "bed_id": 1053,
                     "service_id": 1,
                     "status": "Leaving",
                     "to_clean": true,
-                    "name": "Chambre 322",
+                    "name": "Chambre 322"
                 },
                 {
                     "bed_id": 321,
                     "service_id": 1,
                     "status": "Busy",
                     "to_clean": true,
-                    "name": "Chambre 107",
+                    "name": "Chambre 107"
                 }
             ]
         }
@@ -206,35 +191,35 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
                     "service_id": 7,
                     "status": "Free",
                     "to_clean": true,
-                    "name": "Chambre 402",
+                    "name": "Chambre 402"
                 },
                 {
                     "bed_id": 1053,
                     "service_id": 7,
                     "status": "Leaving",
                     "to_clean": false,
-                    "name": "Chambre 32",
+                    "name": "Chambre 32"
                 },
                 {
                     "bed_id": 321,
                     "service_id": 7,
                     "status": "Busy",
                     "to_clean": false,
-                    "name": "Chambre 109",
+                    "name": "Chambre 109"
                 },
                 {
                     "bed_id": 321,
                     "service_id": 8,
                     "status": "Busy",
                     "to_clean": false,
-                    "name": "Chambre 203",
+                    "name": "Chambre 203"
                 },
                 {
                     "bed_id": 321,
                     "service_id": 8,
                     "status": "Busy",
                     "to_clean": true,
-                    "name": "Chambre 315",
+                    "name": "Chambre 315"
                 }
             ]
         }
@@ -343,149 +328,35 @@ Cette action renvoit la liste des services de l'hôpital, sous forme de tableau.
 
 + Response 204
 
-# Utilisateurs [/users]
+## Liste des lits non liés [GET /beds/unbounded]
 
-## Connexion [POST /users/login]
+Liste les lits qui ne sont associés à aucun service.
 
-Il s'agit de la seule action disponible lorsqu'un utilisateur n'est pas connecté.
-Toutes les actions qu'il effectuera par la suite sera donc liée à son compte.
++ Request valide (application/json)
+
++ Response 200 (application/json)
+
+        {
+            "beds": [
+                {
+                    "bed_id": 7,
+                    "old": 7,
+                    "oldName": 7,
+                    "status": "Free",
+                    "to_clean": true,
+                    "name": "Chambre 402"
+                }
+            ]
+        }
+
+
+## Suppression des lits non liés [DELETE /beds/unbounded]
+
+Supprime les lits qui ne sont associés à aucun service.
 
 + Request valide (application/json)
 
     + Attributes
-        + type: Admin (User) - Le type d'utilisateur demandé
-        + username: john.doe - Le nom de l'utilisateur
-        + password: password - Le mot de passe
+        + service_id: 1 (number, optional) - L'id du service auquel le lit est associé
 
 + Response 204 (application/json)
-
-+ Request invalide (application/json)
-
-    + Attributes
-        + type: Admin (User) - Le type d'utilisateur demandé
-        + username: john.doe - Le nom de l'utilisateur
-        + password: wrongpassword - Un mauvais mot de passe
-
-+ Response 401 (application/json)
-
-
-## Déconnexion [POST /users/logout]
-
-Déconnecte l'utilisateur.
-
-+ Request utilisateur connecté (application/json)
-
-+ Response 204 (application/json)
-
-+ Request utilisateur non connecté (application/json)
-
-+ Response 403 (application/json)
-
-        {}
-
-
-## Creation d'un utilisateur [POST /users]
-
-Créé un compte utilisateur
-
-+ Request (application/json)
-
-    + Attributes
-        + type: Cleaner (User) - Le type d'utilisateur à créer
-        + username: john.doe (string) - Le nom de l'utilisateur
-        + password: wrongpassword (string) - Le mot de passe
-
-
-+ Response 201 (application/json)
-
-        {}
-
-## List des utilisateurs [GET /users{?type}{?offset}{?limit}]
-
-Permet de récupérer/filtrer tous les utilisateurs.
-
-+ Parameters
-    + type: Cleaner (User, optional) - Le type d'utilisateur
-    + offset: 40 (number, optional) - Le nombre de résultats correspondant à la requête à ignorer
-        - Default: 0
-    + limit: 20 (number, optional) - Le nombre maximum de résultats à retourner en réponse de la requếte.
-        - Default: 20
-
-+ Request avec des droits administrateur (application/json)
-
-+ Response 200 (application/json)
-
-        {
-            "users": [
-                {
-                    "id": 12,
-                    "type": "Cleaner",
-                    "username": "john.doe",
-                    "password": "xxxxxx"
-                }
-            ],
-            "offset": 20
-        }
-
-+ Request avec des droits normaux (application/json)
-
-+ Response 200 (application/json)
-
-        {
-            "users": [
-                {
-                    "id": 12,
-                    "type": "Cleaner",
-                    "username": "john.doe"
-                }
-            ],
-            "offset": 20
-        }
- 
-## Suppression d'un utilisateur [DELETE /users/{user_id}]
-
-Supprime un utilisateur.
-
-+ Parameters
-
-    + user_id: 1 (number, required) - l'id de l'utilisateur à supprimer
-
-+ Request (application/json)
-
-+ Response 204 (application/json)
-
-## Modification d'un utilisateur [PUT /users/{user_id}]
-
-Modifie un utilisateur
-
-+ Parameters
-
-    + user_id: 1 (number, required) - l'id de l'utilisateur à modifier
-
-+ Request (application/json)
-
-    + Attributes
-        + username: john.smith (string, optional) - Le nouveau nom de l'utilisateur
-        + password: password (string, optional) - Le nouveau mot de passe
-        
-+ Response 204 (application/json)
-
-## Informations d'un utilisateur [GET /users/{user_id}]
-
-Récupère les informations d'un utilisateur. Sera probablement utile plus tard lorsque l'utilisateur contiendra les informations de ses actions, etc.
-
-+ Parameters
-
-    + user_id: 1 (number, required) - l'id de l'utilisateur
-
-+ Request (application/json)
-
-+ Response 200
-
-    + Attributes
-        + user_id: 1 (number) - L'id de l'utilisateur
-        + type: Cleaner (User) - Le type d'utilisateur à créer
-        + username: john.doe (string) - Le nom de l'utilisateur
-        + password: password (string) - Le mot de passe
-       
-

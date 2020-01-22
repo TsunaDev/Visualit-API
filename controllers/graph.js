@@ -129,6 +129,9 @@ module.exports = {
   createBed: (status, to_clean, display_name, service_id, callback) => {
     return GraphCall('MATCH (s:Service) WHERE ID(s) = ' + service_id + ' CREATE (b:Bed {name: "' + display_name + '", to_clean: ' + to_clean + ', status: "' + status + '"})-[:SERVICE]->(s) RETURN b', callback);
   },
+  deleteBed: (bed_id, callback) => {
+    return GraphCall('MATCH (b:Bed) WHERE ID(b) = ' + bed_id + ' DETACH DELETE b RETURN b', callback);
+  },
 
   getBed: (bed_id, callback) => {
     return GraphCallTransformInteger('MATCH (b:Bed)-[SERVICE]->(s:Service) WHERE ID(b) = ' + bed_id + ' RETURN collect(b {.*, service_id:ID(s), bed_id:ID(b)})', callback)
