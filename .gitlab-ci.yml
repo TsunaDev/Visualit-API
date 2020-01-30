@@ -7,6 +7,7 @@ variables:
   POSTMAN_COLLECTION: https://api.getpostman.com/collections/${c_uid}?apikey=${apiKey}
   POSTMAN_ENVIRONMENT: https://api.getpostman.com/environments/${e_uid}?apikey=${apiKey}
   DB_URI: bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688
+  LOGS_URI: mongodb+srv://visualit:MsUgkkdNK2vfHUKd@cluster0-fwt6p.mongodb.net/test?retryWrites=true&w=majority
 
 stages:
   - build

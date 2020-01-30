@@ -9,6 +9,10 @@ services:
     container_name: api
     links:
       - graph
+      - logs
+    depends_on:
+      - logs
+      - graph
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
@@ -19,6 +23,7 @@ services:
       - 8088:8088
     environment:
       - DB_URI="bolt://graph:7687"
+      - LOGS_URI=mongodb://visualit:password@logs:27017/visualit
   graph:
     image: neo4j:latest
     ports:
@@ -30,4 +35,14 @@ services:
       - ./graph/plugins:/plugins
     environment:
       - NEO4J_AUTH=neo4j/test
-
+  logs:
+      image: mongo:latest
+      environment:
+        - MONGO_INITDB_DATABASE=visualit
+        - MONGO_INITDB_ROOT_USERNAME=visualit
+        - MONGO_INITDB_ROOT_PASSWORD=password
+      ports:
+        - 27017:27017
+      volumes:
+        - ./logs/data:/data/db
+        - ./logs/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
