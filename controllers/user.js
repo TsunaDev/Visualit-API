@@ -25,17 +25,16 @@ module.exports = {
     let ret = null;
     const check = await checkUserRole(req);
 
-    if (!check)
+    if (!check) {
+      console.log("InvalidRole")
       ret = res.status(401).send({error: {name: "InvalidRole"}});
-    else {
+    } else {
       const username = req.body["username"];
       const password = req.body["password"];
       const role = req.body["role"];
 
       if (!username || !password || !role)
       return res.status(401).send({error: {name: "MissingParameter"}});
-
-      let ret = null;
 
       await graph.createUser(username, password, role, function(result) {
         if (result.status)
