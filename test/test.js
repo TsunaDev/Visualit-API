@@ -51,59 +51,8 @@ describe("Homepage test", function() {
   });
 });
 
-describe("Registration test", () => {
-  it("should return a 201 code", done => {
-    server
-      .post("/user/")
-      .send("username=test&password=test&role=admin")
-      .expect(201)
-      .end(err => {
-        if (err) return done(err);
-        done();
-      });
-  });
-});
-describe("Registration fail test", () => {
-  it("should return a 401 code", done => {
-    server
-      .post("/user/")
-      .send("username=test")
-      .expect(401)
-      .end(err => {
-        if (err) return done(err);
-        done();
-      });
-  });
-});
 
-describe("Log in test", () => {
-  it("should return a token", done => {
-    server
-      .post("/auth")
-      .send("username=test&password=test")
-      .expect('Content-Type', /json/)
-      .expect(200)
-      .then(res => {
-          if (!(res.body.token && res.body.expiresIn))
-              return done(Error("Missing field"));
-          token = res.body.token;
-          done();
-      });
-  });
-});
 
-describe("Log in test failure", () => {
-  it("should return a 401 error code", done => {
-      server
-          .post("/auth")
-          .send("username=foo&password=toto")
-          .expect(401)
-          .end(err => {
-              if (err) return done(err);
-              done();
-          });
-  });
-});
 
 
 describe("Tests with token required", () => {
@@ -117,6 +66,63 @@ describe("Tests with token required", () => {
     adminToken = resAdminToken.body.token;
   });
 
+  describe("Registration test", () => {
+    it("should return a 201 code", done => {
+      server
+        .post("/user/")
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send("username=test&password=test&role=admin")
+        .expect(201)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Registration fail test", () => {
+    it("should return a 401 code", done => {
+      server
+        .post("/user/")
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send("username=test")
+        .expect(401)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+
+  describe("Log in test", () => {
+    it("should return a token", done => {
+      server
+        .post("/auth")
+        .send("username=test&password=test")
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .then(res => {
+            if (!(res.body.token && res.body.expiresIn))
+                return done(Error("Missing field"));
+            token = res.body.token;
+            done();
+        });
+    });
+  });
+  
+  describe("Log in test failure", () => {
+    it("should return a 401 error code", done => {
+        server
+            .post("/auth")
+            .send("username=foo&password=toto")
+            .expect(401)
+            .end(err => {
+                if (err) return done(err);
+                done();
+            });
+    });
+  });
 
   describe("Authentication test", () => {
       it("should return a 200 code", done => {
