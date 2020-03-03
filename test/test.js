@@ -32,10 +32,7 @@ const loginWithUser = async (user) => {
   await getUser(user);
   return server.post("/auth/")
       .send({ "username": user.username, "password": user.password })
-      .expect(401)
-      .then(function(res) {
-        console.log(res.error);
-      });
+      .expect(200);
 };
 
 
@@ -52,9 +49,6 @@ describe("Homepage test", function() {
     });
   });
 });
-
-
-
 
 
 describe("Tests with token required", () => {

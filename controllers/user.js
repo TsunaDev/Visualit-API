@@ -9,11 +9,10 @@ async function checkUserRole(req) {
     let role = null;
     await graph.getUserRole(req.user.username, (result) => {
       if (result.status)
-        role = result.value;
+        role = result.value.low;
       else
         role = 0;
     });
-    
     if (role !== 1) {
       return false;
     }
