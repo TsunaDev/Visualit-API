@@ -90,6 +90,7 @@ describe("Get all roles", function() {
     .end(function(err, res) {
       if (err) return done(err);
 
+      res.body.length.should.equal(3);
       done();
     })
   })
@@ -133,7 +134,6 @@ describe("Tests with token required", () => {
         });
     });
   });
-
 
   describe("Log in test", () => {
     it("should return a token", done => {
@@ -202,6 +202,7 @@ describe("Tests with token required", () => {
         });
     });
   });
+
   describe("Get user infos test", () => {
     it("should return a 200 code", done => {
       server
@@ -216,6 +217,7 @@ describe("Tests with token required", () => {
         });
     });
   });
+
   describe("Get user infos test no permissions", () => {
     it("should return a 401 code", done => {
       server
@@ -242,6 +244,7 @@ describe("Tests with token required", () => {
         });
     });
   });
+
   describe("Change user infos test", () => {
     it("should return a 202 code", done => {
       server
@@ -255,6 +258,7 @@ describe("Tests with token required", () => {
         });
     });
   });
+
   describe("Change user infos test no permissions", () => {
     it("should return a 401 code", done => {
       server
@@ -282,6 +286,7 @@ describe("Tests with token required", () => {
         });
     });
   });
+
   describe("Delete user test", () => {
     it("should return a 204 code", done => {
       server
@@ -295,11 +300,54 @@ describe("Tests with token required", () => {
         });
     });
   });
+
   describe("Delete self test", () => {
     it("should return a 204 code", done => {
       server
         .delete("/user/")
         .set("Authorization", `Bearer ${nurseToken}`)
+        .expect(204)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Role creation", () => {
+    it("should create a role and return a 201 code", done => {
+      server
+        .post("/roles/")
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({"role": "cleaner", "index": 4})
+        .expect(201)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Change role name", () => {
+    it("should return a 202 code", done => {
+      server
+        .put("/roles/")
+        .send({"role": "cleaner", "name": "cleaningagent"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Delete role", () => {
+    it("should return a 204 code", done => {
+      server
+        .delete("/roles/")
+        .send({"role": "cleaningagent"})
+        .set("Authorization", `Bearer ${adminToken}`)
         .expect(204)
         .end(err => {
           if (err) return done(err);
