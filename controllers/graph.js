@@ -154,12 +154,11 @@ module.exports = {
   },
 
   updateRole: (role, properties, callback) => {
-    console.log('MATCH (r:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN r')
-    return GraphCall('MATCH (r:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN r', callback);
+    return GraphCall('MATCH (u:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN u', callback);
   },
 
   updateRoleByIndex: (index, properties, callback) => {
-    return GraphCall('MATCH (r:Role {index: ' + index + '}) SET ' + setProperties(properties) + ' RETURN r', callback);
+    return GraphCall('MATCH (u:Role {index: ' + index + '}) SET ' + setProperties(properties) + ' RETURN u', callback);
   },
 
   deleteRole: (role, callback) => {
