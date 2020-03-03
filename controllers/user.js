@@ -26,21 +26,20 @@ module.exports = {
     const check = await checkUserRole(req);
 
     if (!check) {
-      console.log("InvalidRole")
-      ret = res.status(402).send({error: {name: "InvalidRole"}});
+      ret = res.status(401).send({error: {name: "InvalidRole"}});
     } else {
       const username = req.body["username"];
       const password = req.body["password"];
       const role = req.body["role"];
 
       if (!username || !password || !role)
-      return res.status(403).send({error: {name: "MissingParameter"}});
+      return res.status(401).send({error: {name: "MissingParameter"}});
 
       await graph.createUser(username, password, role, function(result) {
         if (result.status)
           ret = res.sendStatus(201);
         else
-          ret = res.status(404).send({error: result.value}); // TODO: Revoir les normes
+          ret = res.status(401).send({error: result.value}); // TODO: Revoir les normes
       });
     }
     return ret;
