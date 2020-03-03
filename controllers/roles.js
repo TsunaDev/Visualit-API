@@ -22,7 +22,7 @@ module.exports = {
       ret = res.status(401).send({error: {name: "InvalidRole"}});
     else {
       const role = req.body.role
-      const id = req.body.index
+      const index = req.body.index
 
       if (!role || !id)
         ret = res.status(401).send({error: {name: "MissingParameter"}});
@@ -80,22 +80,15 @@ module.exports = {
 
   update: async(req, res) => {
     let ret = null;
-    const role = req.body.role;
-    const index = req.body.index;
+    const role = req.body["role"];
+    let args = JSON.parse(JSON.stringify(req.body));
+    delete args.role
 
     const check = await userIsAdmin(req);
     if (!check) {
       ret = res.status(401).send({error: {name: "InvalidRole"}});
     } else if (role) {
       await graph.updateRole(role, args, function(result) {
-        if (result.status)
-          ret = res.status(202).send(result.value.properties);
-        else {
-          ret = res.status(401).send({error: result.value});
-        }
-      });
-    } else if (index) {
-      await graph.updateRoleByIndex(index, args, function(result) {
         if (result.status)
           ret = res.status(202).send(result.value.properties);
         else {
