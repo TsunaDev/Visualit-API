@@ -24,7 +24,7 @@ module.exports = {
       const role = req.body.role
       const index = req.body.index
 
-      if (!role || !id)
+      if (!role || !index)
         ret = res.status(401).send({error: {name: "MissingParameter"}});
       else {
         await graph.createRole(role, index, function(result) {
@@ -59,7 +59,7 @@ module.exports = {
           ret = res.status(401).send({error: result.value});
       });
     else
-      ret = res.status(401).send({error: "Missing argument"});
+      ret = res.status(401).send({error: "MissingParameter"});
     
     return ret;
   },
@@ -96,7 +96,7 @@ module.exports = {
         }
       });
     } else
-      ret = res.status(401).send({error: "Missing Parameter"})
+      ret = res.status(401).send({error: "MissingParameter"})
 
     return ret;
   },
@@ -124,7 +124,7 @@ module.exports = {
           ret = res.status(401).send({error: result.value});
       });
     } else
-      ret = res.status(401).send({error: "Missing Parameter"});
+      ret = res.status(401).send({error: "MissingParameter"});
 
     return ret;
   }
