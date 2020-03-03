@@ -72,11 +72,11 @@ function GraphCallTransformInteger(request, callback) {
 
 module.exports = {
   createUser: (username, password, role, callback) => {
-    return GraphCall('MATCH (r:Role) WHERE r.name = "' + role + '" CREATE (u:User {name: "' + username + '", password: "' + password + '"})-[:ROLE]->(r) RETURN u', callback);
+    return GraphCall('MATCH (r:Role) WHERE r.index = "' + role + '" CREATE (u:User {name: "' + username + '", password: "' + password + '"})-[:ROLE]->(r) RETURN u', callback);
   },
 
   getUser: (username, callback) => {
-    return GraphCall('MATCH (u:User)-[ROLE]->(r:Role) WHERE u.name = "' + username + '" RETURN collect(u {.*, role:r.name})', callback);
+    return GraphCall('MATCH (u:User)-[ROLE]->(r:Role) WHERE u.name = "' + username + '" RETURN collect(u {.*, role:r.index})', callback);
   },
 
   getAllUsers: (callback) => {
@@ -100,7 +100,7 @@ module.exports = {
   },
 
   getUserRole: (username, callback) => {
-    return GraphCall('MATCH (u:User {name: "' + username + '"})-[:ROLE]-(r) RETURN r.name', callback);
+    return GraphCall('MATCH (u:User {name: "' + username + '"})-[:ROLE]-(r) RETURN r.index', callback);
   },
 
   updateUser: (username, properties, callback) => {

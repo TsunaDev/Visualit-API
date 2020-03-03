@@ -11,10 +11,10 @@ async function checkUserRole(req) {
       if (result.status)
         role = result.value;
       else
-        role = "Unknown";
+        role = 0;
     });
     
-    if (role !== "admin") {
+    if (role !== 1) {
       return false;
     }
   }
@@ -23,22 +23,28 @@ async function checkUserRole(req) {
 
 module.exports = {
   register: async (req, res) => {
-    const username = req.body["username"];
-    const password = req.body["password"];
-    const role = req.body["role"];
-
-    if (!username || !password || !role)
-    return res.status(401).send({error: {name: "MissingParameter"}});
-
     let ret = null;
+    const check = await checkUserRole(req);
 
-    await graph.createUser(username, password, role, function(result) {
-      if (result.status)
-        ret = res.sendStatus(201);
-      else
-        ret = res.status(401).send({error: result.value}); // TODO: Revoir les normes
-    });
+    if (!check)
+      ret = res.status(401).send({error: {name: "InvalidRole"}});
+    else {
+      const username = req.body["username"];
+      const password = req.body["password"];
+      const role = req.body["role"];
 
+      if (!username || !password || !role)
+      return res.status(401).send({error: {name: "MissingParameter"}});
+
+      let ret = null;
+
+      await graph.createUser(username, password, role, function(result) {
+        if (result.status)
+          ret = res.sendStatus(201);
+        else
+          ret = res.status(401).send({error: result.value}); // TODO: Revoir les normes
+      });
+    }
     return ret;
   },
 
@@ -108,10 +114,10 @@ module.exports = {
       if (result.status)
         role = result.value;
       else
-        role = "Unknown";
+        role = 0;
     });
 
-    if (role === "admin")
+    if (role === 1)
       check = true;
 
     if (!check)

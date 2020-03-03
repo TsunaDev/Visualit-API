@@ -5,7 +5,7 @@ const passport = require('passport');
 
 /* CRUD */
 
-router.post('/', controller.register);
+router.post('/', passport.authenticate('jwt', {session: false}), controller.register);
 
 router.get('/', passport.authenticate('jwt', {session: false}), controller.fetchInfos);
 
