@@ -6,12 +6,11 @@ let should = require("should");
 let server = supertest.agent("http://127.0.0.1:3000");
 let token = "";
 
-const testAdmin = { "username": "admin", "password": "pass", "role": "admin" };
-const testNurse = { "username": "nurse", "password": "pass", "role": "nurse" };
+const testAdmin = { "username": "admin", "password": "pass", "role": 1 };
+const testNurse = { "username": "nurse", "password": "pass", "role": 3 };
 
 const createUser = async (user) => {
   let res = null;
-  
   await graph.createUser(user.username, user.password, user.role, (result) => {res = result;});
   return res;
 };
@@ -20,9 +19,9 @@ const getUser = async(user) => {
   let data = null;
 
   await graph.getUser(user.username, async function(res) {
-    if (res.status)
+    if (res.status) {
       data = res.value;
-    else
+    } else
       data = await createUser(user);
   });
 
@@ -33,7 +32,10 @@ const loginWithUser = async (user) => {
   await getUser(user);
   return server.post("/auth/")
       .send({ "username": user.username, "password": user.password })
-      .expect(200);
+      .expect(401)
+      .then(function(res) {
+        console.log(res.error);
+      });
 };
 
 
