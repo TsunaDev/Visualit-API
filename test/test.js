@@ -50,6 +50,50 @@ describe("Homepage test", function() {
   });
 });
 
+describe("Get a role with name", function() {
+  it("should return a role", function(done) {
+    server
+    .get("/roles")
+    .send("role=admin")
+    .expect(200)
+    .end(function(err, res) {
+      if (err) return done(err);
+      
+      res.body.name.should.equal("admin");
+      res.body.index.should.equal(1)
+      done();
+    });
+  })
+})
+
+describe("Get a role with index", function() {
+  it("should return a role", function(done) {
+    server
+    .get("/roles")
+    .send("index=1")
+    .expect(200)
+    .end(function(err, res) {
+      if (err) return done(err);
+      
+      res.body.name.should.equal("admin");
+      res.body.index.should.equal(1)
+      done();
+    });
+  })
+})
+
+describe("Get all roles", function() {
+  it("should return all roles", function(done) {
+    server
+    .get("/roles/all")
+    .expect(200)
+    .end(function(err, res) {
+      if (err) return done(err);
+
+      done();
+    })
+  })
+})
 
 describe("Tests with token required", () => {
   let nurseToken = null;

@@ -119,6 +119,72 @@ module.exports = {
     });
   },
 
+  // Roles
+
+  createRole: (role, index, callback) => {
+    return GraphCall('CREATE (r:Role {name: "' + role + '", index: ' + index + '}) RETURN r', callback);
+  },
+
+  getRole: (role, callback) => {
+    return GraphCall('MATCH (r:Role) WHERE r.name = "' + role + '" RETURN r', callback);
+  },
+
+  getRoleByIndex: (index, callback) => {
+    return GraphCall('MATCH (r:Role) WHERE r.index = ' + index + ' RETURN r', callback);
+  },
+
+  getAllRoles: (callback) => {
+    const request = 'MATCH (r:Role) RETURN r';
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+
+      let entries = [];
+      if (res.records && res.records.length) {
+        res.records.forEach((record, index) => {  
+          entries.push(record.get(0).properties);
+        });
+        callback({status: true, value: entries});
+      } else
+        callback({status: false, value: {name: "InputError", code: "No record found."}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
+  },
+
+  updateRole: (role, properties, callback) => {
+    return GraphCall('MATCH (r:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN r', callback);
+  },
+
+  updateRoleByIndex: (index, properties, callback) => {
+    return GraphCall('MATCH (r:Role {index: ' + index + '}) SET ' + setProperties(properties) + ' RETURN r', callback);
+  },
+
+  deleteRole: (role, callback) => {
+    const request = 'MATCH (r:Role {name: "' + role + '"}) OPTIONAL MATCH (r)-[u]-() DELETE r, u'
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+      callback({status: true, value: {}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
+  },
+
+  deleteRoleByIndex: (index, callback) => {
+    const request = 'MATCH (r:Role {index: ' + index + '}) OPTIONAL MATCH (r)-[u]-() DELETE r, u'
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+      callback({status: true, value: {}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
+  },
+
   // BEDS
   /*
 	var status = req.body.status
