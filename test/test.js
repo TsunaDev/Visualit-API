@@ -67,7 +67,7 @@ describe("Tests with token required", () => {
       server
         .post("/user/")
         .set('Authorization', `Bearer ${adminToken}`)
-        .send("username=test&password=test&role=admin")
+        .send({"username": user.username, "password": user.password , "role": 1})
         .expect(201)
         .end(err => {
           if (err) return done(err);
