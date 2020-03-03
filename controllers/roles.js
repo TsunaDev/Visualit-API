@@ -46,15 +46,15 @@ module.exports = {
 
     if (role)
       await graph.getRole(role, function(result) {
-        if (result.status)
-          ret = res.status(200).send(result.value[0]);
-        else
+        if (result.status) {
+          ret = res.status(200).send({name: result.value.properties.name, index: result.value.properties.index.low});
+        } else
           ret = res.status(401).send({error: result.value});
       });
     else if (index)
       await graph.getRoleByIndex(index, function(result) {
         if (result.status)
-          ret = res.status(200).send(result.value[0]);
+          ret = res.status(200).send({name: result.value.properties.name, index: result.value.properties.index.low});
         else
           ret = res.status(401).send({error: result.value});
       });
@@ -66,9 +66,14 @@ module.exports = {
 
   getAllRoles: async(req, res) => {
     await graph.getAllRoles(function(result) {
-      if (result.status)
-        ret = res.status(200).send(result.value);
-      else
+      if (result.status) {
+        let list = [];
+
+        for (let i = 0; i < result.value.length; i++) {
+          list.push({name: result.value[i].name, index: result.value[i].index.low});
+        }
+        ret = res.status(200).send(list);
+      } else
         ret = res.status(401).send({error: result.value});
     });
   },
