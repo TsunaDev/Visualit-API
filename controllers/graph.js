@@ -154,6 +154,7 @@ module.exports = {
   },
 
   updateRole: (role, properties, callback) => {
+    console.log('MATCH (r:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN r')
     return GraphCall('MATCH (r:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN r', callback);
   },
 
