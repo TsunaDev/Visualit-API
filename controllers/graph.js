@@ -72,11 +72,11 @@ function GraphCallTransformInteger(request, callback) {
 
 module.exports = {
   createUser: (username, password, role, callback) => {
-    return GraphCall('MATCH (r:Role) WHERE r.name = "' + role + '" CREATE (u:User {name: "' + username + '", password: "' + password + '"})-[:ROLE]->(r) RETURN u', callback);
+    return GraphCall('MATCH (r:Role) WHERE r.index = ' + role + ' CREATE (u:User {name: "' + username + '", password: "' + password + '"})-[:ROLE]->(r) RETURN u', callback);
   },
 
   getUser: (username, callback) => {
-    return GraphCall('MATCH (u:User)-[ROLE]->(r:Role) WHERE u.name = "' + username + '" RETURN collect(u {.*, role:r.name})', callback);
+    return GraphCall('MATCH (u:User)-[ROLE]->(r:Role) WHERE u.name = "' + username + '" RETURN collect(u {.*, role:r.index})', callback);
   },
 
   getAllUsers: (callback) => {
@@ -100,7 +100,7 @@ module.exports = {
   },
 
   getUserRole: (username, callback) => {
-    return GraphCall('MATCH (u:User {name: "' + username + '"})-[:ROLE]-(r) RETURN r.name', callback);
+    return GraphCall('MATCH (u:User {name: "' + username + '"})-[:ROLE]-(r) RETURN r.index', callback);
   },
 
   updateUser: (username, properties, callback) => {
@@ -109,6 +109,72 @@ module.exports = {
 
   deleteUser: (username, callback) => {
     const request = 'MATCH (u:User {name: "' + username + '"}) OPTIONAL MATCH (u)-[r]-() DELETE r, u'
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+      callback({status: true, value: {}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
+  },
+
+  // Roles
+
+  createRole: (role, index, callback) => {
+    return GraphCall('CREATE (r:Role {name: "' + role + '", index: ' + index + '}) RETURN r', callback);
+  },
+
+  getRole: (role, callback) => {
+    return GraphCall('MATCH (r:Role) WHERE r.name = "' + role + '" RETURN r', callback);
+  },
+
+  getRoleByIndex: (index, callback) => {
+    return GraphCall('MATCH (r:Role) WHERE r.index = ' + index + ' RETURN r', callback);
+  },
+
+  getAllRoles: (callback) => {
+    const request = 'MATCH (r:Role) RETURN r';
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+
+      let entries = [];
+      if (res.records && res.records.length) {
+        res.records.forEach((record, index) => {  
+          entries.push(record.get(0).properties);
+        });
+        callback({status: true, value: entries});
+      } else
+        callback({status: false, value: {name: "InputError", code: "No record found."}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
+  },
+
+  updateRole: (role, properties, callback) => {
+    return GraphCall('MATCH (u:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN u', callback);
+  },
+
+  updateRoleByIndex: (index, properties, callback) => {
+    return GraphCall('MATCH (u:Role {index: ' + index + '}) SET ' + setProperties(properties) + ' RETURN u', callback);
+  },
+
+  deleteRole: (role, callback) => {
+    const request = 'MATCH (r:Role {name: "' + role + '"}) OPTIONAL MATCH (r)-[u]-() DELETE r, u'
+    const session = driver.session();
+
+    return session.run(request).then(res => {
+      session.close();
+      callback({status: true, value: {}});
+    }).catch(function(error) {
+      callback({status: false, value: error});
+    });
+  },
+
+  deleteRoleByIndex: (index, callback) => {
+    const request = 'MATCH (r:Role {index: ' + index + '}) OPTIONAL MATCH (r)-[u]-() DELETE r, u'
     const session = driver.session();
 
     return session.run(request).then(res => {

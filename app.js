@@ -15,6 +15,7 @@ const authRouter = require('./routes/auth');
 const bedRouter = require('./routes/beds');
 const serviceRouter = require('./routes/services');
 const userRouter = require('./routes/user');
+const rolesRouter = require('./routes/roles');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use(passport.initialize());
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
+app.use('/roles', rolesRouter);
 
 app.use('/beds', bedRouter);
 app.use('/services', serviceRouter);
