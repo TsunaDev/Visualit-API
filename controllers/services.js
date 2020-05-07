@@ -3,8 +3,7 @@ const graph = require ('./graph');
 async function listServices(req, res) {
 	let ret = null
 	graph.listServices((result) => {
-		res.status(200)
-		console.log(result)
+		res.status(200);
 		if (result.status == false && result.value.code == "No record found.") {
 			ret = res.json({"services": []})
 		} else {
@@ -30,7 +29,6 @@ async function deleteService(req, res) {
 		return res.sendStatus(400)
 	}
 	graph.deleteService(service_id, (result) => {
-		console.log(result)
 		if (result.status == false) {
        		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
       		ret = res.sendStatus(404)

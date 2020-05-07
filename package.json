@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha --exit"
+    "test": "mocha --timeout 10000 --exit"
   },
   "dependencies": {
     "body-parser": "~1.19.0",
@@ -22,8 +22,8 @@
     "newman": "^4.5.5",
     "passport": "~0.4.0",
     "passport-jwt": "~4.0.0",
-    "snowboard": "^3.4.1",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "uuid-validate": "^0.0.3"
   },
   "devDependencies": {
     "mocha": "^6.1.4",

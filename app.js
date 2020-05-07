@@ -16,6 +16,7 @@ const bedRouter = require('./routes/beds');
 const serviceRouter = require('./routes/services');
 const userRouter = require('./routes/user');
 const rolesRouter = require('./routes/roles');
+const roomRouter = require('./routes/room');
 
 const app = express();
 
@@ -23,7 +24,7 @@ const app = express();
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "*");
   next();
 });
 
@@ -46,6 +47,7 @@ app.use('/user', userRouter);
 app.use('/roles', rolesRouter);
 
 app.use('/beds', bedRouter);
+app.use('/rooms', roomRouter);
 app.use('/services', serviceRouter);
 
 // catch 404 and forward to error handler

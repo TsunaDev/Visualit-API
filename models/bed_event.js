@@ -2,13 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const bedEventSchema = new Schema({
-  bed_id: Number,
+  bed_uuid: String,
+  room_nb: String,
   service_id: Number,
   username: String,
   user_role: String,
   state: {
-    old: String,
-    new: String
+    old: Number,
+    new: Number
   },
   to_clean: {
     old: Boolean,
@@ -19,10 +20,10 @@ const bedEventSchema = new Schema({
 
 const BedEvent = mongoose.model('bedEvent', bedEventSchema);
 const BedState = {
-  free: 'Free',
-  busy: 'Busy',
-  leaving: 'Leaving',
-  unknown: 'Unknown'
+  free: 0,
+  busy: 2,
+  leaving: 1,
+  unknown: -1
 };
 
 module.exports = {

@@ -4,7 +4,8 @@ mongoose.connect(process.env.LOGS_URI, {useNewUrlParser: true});
 
 const bedUpdateEvent = (bedInfo) => {
   const obj = new BedEvent({
-    bed_id: bedInfo.bed_id,
+    bed_uuid: bedInfo.bed_uuid,
+    room_nb: bedInfo.room_nb,
     service_id: bedInfo.service_id,
     username: bedInfo.username,
     user_role: bedInfo.user_role,
