@@ -1,5 +1,8 @@
 const graph = require('./graph');
 const {bedUpdateEvent} = require('./logs');
+const validate = require('uuid-validate')
+
+// "0"=>Free, "1"=>Leaving, "2"=>Busy
 
 async function getOldBedInfo(bedId) {
   let oldBed = null;
@@ -18,13 +21,14 @@ async function updateUtil(bedId, oldBed, newBed, user) {
       role = result.value;
   });
   bedUpdateEvent({
-    bed_id: bedId,
+    bed_uuid: bedId,
+    room_nb: oldBed.room_nb,
     service_id: oldBed.service_id,
     username: user.username,
     user_role: role,
     state: {
-      old: oldBed.status,
-      new: newBed.status
+      old: parseInt(oldBed.status, 10),
+      new: parseInt(newBed.status, 10)
     },
     to_clean: {
       old: oldBed.to_clean,
@@ -34,43 +38,32 @@ async function updateUtil(bedId, oldBed, newBed, user) {
 }
 
 async function listBeds(req, res) {
+  let room_nb = req.query.room_nb;
   let service_id = req.query.service_id;
   let status = req.query.status;
   let to_clean = req.query.to_clean;
 
-
   if (service_id) {
     service_id = parseInt(service_id, 10);
     if (isNaN(service_id)) {
-      res.statusMessage = "Service_id should be an integer.";
+      res.json = {error: "Service_id should be an integer."};
       return res.sendStatus(400)
     }
   }
 
-  if (status) {
-    await status.forEach((v, i) => {
-      if (!["Free", "Leaving", "Busy"].includes(v)) {
-        res.statusMessage = `Invalid '${v}' status.`;
-        res.status(400)
-      }
-      status[i] = "b.status =\"" + v + "\""
-    });
-    status = status.join(" OR ");
-    console.log(status);
-    if (res.statusCode === 400) {
-      return res.end()
-    }
+  
+  if (status && !["0", "1", "2"].includes(status)) {
+    res.json = {error: `Invalid '${v}' status.`};
+    return res.sendStatus(400)
   }
-  console.log(status);
 
   let tmp_to_clean = parseInt(to_clean, 10);
   if (!isNaN(to_clean)) {
     to_clean = tmp_to_clean
   }
-  console.log(to_clean);
 
   if (typeof to_clean != "undefined" && !["false", "true", 0, 1].includes(to_clean)) {
-    res.statusMessage = "to_clean should be a boolean";
+    res.json = {error: "to_clean should be a boolean"};
     return res.sendStatus(400)
   }
 
@@ -83,99 +76,64 @@ async function listBeds(req, res) {
 
 
   let ret = null;
-  graph.listBed(service_id, status, to_clean, (result) => {
+  graph.listBeds(room_nb, service_id, status, to_clean, (result) => {
     res.status(200);
     if (result.status === false && result.value.code === "No record found.") {
-      ret = res.json({"beds": []})
+      ret = res.json([])
     } else {
-      ret = res.json({
-        "beds": result.value
-      })
+      ret = res.json(result.value)
     }
   });
   return ret;
 }
 
 async function getBed(req, res) {
-  let bed_id = req.params.bed_id;
+  let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
+  if (!bed_uuid) {
+    res.json = {error: "The bed_uuid is required."};
     return res.sendStatus(404)
   }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
+  if (!validate(bed_uuid, 4)) {
+    res.json = {error: "bed_uuid should be a valid uuid."};
     return res.sendStatus(400)
   }
 
-  await graph.getBed(bed_id, (result) => {
+  await graph.getBed(bed_uuid, (result) => {
     if (result.value.length === 0) {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`;
-      ret = res.sendStatus(404)
+      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
+      ret = res.sendStatus(404);
     } else {
+      result.value[0].service_id = result.value[0].service_id.low;
+      result.value[0].status = parseInt(result.value[0].status, 10);
       res.status(200);
-      ret = res.json(result.value[0])
+      ret = res.json(result.value[0]);
     }
   });
 
   return ret;
 }
 
-async function getUnboundedBed(req, res) {
-  let ret = null;
-
-  await graph.getUnboundedBed((result) => {
-    res.status(200);
-    ret = res.json(result.value)
-  });
-  return (ret)
-}
-
-async function unboundedBedDelete(req, res) {
-  let ret = null;
-  let service_id = req.query.service_id;
-
-  if (service_id) {
-    service_id = parseInt(service_id, 10);
-    if (isNaN(service_id)) {
-      res.statusMessage = "Service_id should be an integer.";
-      return res.sendStatus(400)
-    }
-  }
-  await graph.unboundedBedDelete(service_id, (result) => {
-    if (result.status) {
-      ret = res.sendStatus(204)
-    } else if (result.value.code === "No record found.") {
-      res.status(400);
-      ret = res.send({error: "Service id not found."})
-    } else {
-      res.status(400);
-      ret = res.send({error: result.value})
-    }
-  });
-  return ret
-}
-
 async function deleteBed(req, res) {
-  let bed_id = req.params.bed_id;
+  let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
+  if (!bed_uuid) {
+    res.json = {error: "The bed_uuid is required."};
     return res.sendStatus(404)
   }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
+  
+  if (!validate(bed_uuid, 4)) {
+    res.json = {error: "bed_uuid should be a valide uuid."};
     return res.sendStatus(400)
   }
-  await graph.deleteBed(bed_id, (result) => {
+
+  await graph.deleteBed(bed_uuid, (result) => {
     if (result.status) {
       ret = res.sendStatus(204)
     } else if (result.value.code === "No record found.") {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`;
+      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
       ret = res.sendStatus(400)
     } else {
       res.status(400);
@@ -185,89 +143,38 @@ async function deleteBed(req, res) {
   return ret
 }
 
-function modifyBed(req, res) {
-  let bed_id = req.params.bed_id;
-  let status = req.body.status;
-  let to_clean = req.body.to_clean;
-  let display_name = req.body.name;
-  let service_id = req.body.service_id;
-
-
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
-    return res.sendStatus(404)
-  }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
-    return res.sendStatus(400)
-  }
-  /*if (![1, 1053, 321].includes(bed_id)) {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`
-       return res.sendStatus(404)
-    }*/
-
-  if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
-    res.statusMessage = `Invalid '${status}' status.`;
-    return res.sendStatus(400)
-  }
-
-  if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
-    res.statusMessage = "to_clean should be a boolean";
-    return res.sendStatus(400)
-  }
-  /*	if (to_clean == "false") {
-      to_clean = false
-    }
-    if (to_clean == "true") {
-      to_clean = true
-    }*/
-
-  if (!display_name || display_name === "") {
-    res.statusMessage = "Invalid name";
-    return res.sendStatus(400)
-  }
-
-  if (!service_id) {
-    res.statusMessage = "The service_id is required.";
-    return res.sendStatus(400)
-  }
-  service_id = parseInt(service_id, 10);
-  if (isNaN(service_id)) {
-    res.statusMessage = "service_id should be an integer.";
-    return res.sendStatus(400)
-  }
-
-  return res.sendStatus(204)
-}
-
-async function modifyBedState(req, res) {
-  let bed_id = req.params.bed_id;
+async function modifyBedStatus(req, res) {
+  let bed_uuid = req.params.bed_uuid;
   let status = req.body.status;
   let ret = null;
 
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
+  if (!bed_uuid) {
+    res.json = {error: "The bed_uuid is required."};
     return res.sendStatus(404)
   }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
-    return res.sendStatus(400)
+  
+  if (!status) {
+    res.json = {error: "The status is required."};
   }
-  if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
-    res.statusMessage = `Invalid '${status}' status.`;
+
+  if (!validate(bed_uuid, 4)) {
+    res.json = {error: "bed_uuid should be a valid uuid."};
     return res.sendStatus(400)
   }
 
-  let oldBed = await getOldBedInfo(bed_id);
+  if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status)) {
+    res.json = {error: `Invalid '${status}' status.`};
+    return res.sendStatus(400)
+  }
 
-  await graph.modifyState(bed_id, status, (result) => {
+  let oldBed = await getOldBedInfo(bed_uuid);
+
+  await graph.modifyStatus(bed_uuid, status, (result) => {
     if (result.status) {
       ret = res.sendStatus(204);
-      updateUtil(bed_id, oldBed, result.value.properties, req.user)
+      updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
     } else if (result.value.code === "No record found.") {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`;
+      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
       ret = res.sendStatus(400)
     } else {
       res.status(400);
@@ -278,22 +185,22 @@ async function modifyBedState(req, res) {
 }
 
 async function cleanlinessBed(req, res) {
-  let bed_id = req.params.bed_id;
+  let bed_uuid = req.params.bed_uuid;
   let to_clean = req.body.to_clean;
   let ret = null;
 
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
+  if (!bed_uuid) {
+    res.json = {error: "The bed_uuid is required."};
     return res.sendStatus(404)
   }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
+
+  if (!validate(bed_uuid, 4)) {
+    res.json = {error: "bed_id should be a valid uuid."};
     return res.sendStatus(400)
   }
 
   if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
-    res.statusMessage = "to_clean should be a boolean";
+    res.json = {error: "to_clean should be a boolean"};
     return res.sendStatus(400)
   }
 
@@ -304,14 +211,14 @@ async function cleanlinessBed(req, res) {
     to_clean = true
   }
 
-  let oldBed = await getOldBedInfo(bed_id);
+  let oldBed = await getOldBedInfo(bed_uuid);
 
-  await graph.modifyClean(bed_id, to_clean, (result) => {
+  await graph.modifyClean(bed_uuid, to_clean, (result) => {
     if (result.status) {
       ret = res.sendStatus(204);
-      updateUtil(bed_id, oldBed, result.value.properties, req.user)
+      updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
     } else if (result.value.code === "No record found.") {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`;
+      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
       ret = res.sendStatus(400)
     } else {
       res.status(400);
@@ -322,68 +229,36 @@ async function cleanlinessBed(req, res) {
   return ret
 }
 
-async function modifyBedName(req, res) {
-  let bed_id = req.params.bed_id;
-  let name = req.body.name;
-  let ret = null;
 
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
-    return res.sendStatus(404)
-  }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
-    return res.sendStatus(400)
-  }
-
-  if (typeof name == "undefined" || name === "") {
-    res.statusMessage = "name should be a string";
-    return res.sendStatus(400)
-  }
-  await graph.modifyName(bed_id, name, (result) => {
-    console.log(result);
-    if (result.status) {
-      ret = res.sendStatus(204)
-    } else if (result.value.code === "No record found.") {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`;
-      ret = res.sendStatus(400)
-    } else {
-      res.status(400);
-      ret = res.send({error: result.value})
-    }
-  });
-
-  return ret
-}
-
-async function modifyBedService(req, res) {
-  let bed_id = req.params.bed_id;
+async function modifyBedRoom(req, res) {
+  let bed_uuid = req.params.bed_uuid;
+  let room_nb = req.body.room_nb;
   let service_id = req.body.service_id;
   let ret = null;
 
 
-  if (!bed_id) {
-    res.statusMessage = "The bed_id is required.";
+  if (!bed_uuid) {
+    res.json = {error: "The bed_uuid is required."};
     return res.sendStatus(404)
   }
-  bed_id = parseInt(bed_id, 10);
-  if (isNaN(bed_id)) {
-    res.statusMessage = "bed_id should be an integer.";
+
+  if (!validate(bed_id, 4)) {
+    res.json = {error: "bed_uuid should be a valid uuid."};
     return res.sendStatus(400)
   }
+
   service_id = parseInt(service_id, 10);
 
   if (typeof service_id == "undefined" || isNaN(service_id)) {
-    res.statusMessage = "service_id should be a boolean";
+    res.json = {error: "service_id should be an integer."};
     return res.sendStatus(400)
   }
-  await graph.modifyBedService(bed_id, service_id, (result) => {
-    console.log(result);
+
+  await graph.modifyBedRoom(bed_uuid, room_nb, service_id, (result) => {
     if (result.status) {
       ret = res.sendStatus(204)
     } else if (result.value.code === "No record found.") {
-      res.statusMessage = `Bed corresponding to bed_id ${bed_id} not found.`;
+      res.statusMessage = `Bed corresponding to bed_uuid ${bed_uuid} or room ${room_nb} in service ${service_id} not found.`;
       ret = res.sendStatus(400)
     } else {
       res.status(400);
@@ -397,18 +272,20 @@ async function modifyBedService(req, res) {
 async function createBed(req, res) {
   let status = req.body.status;
   let to_clean = req.body.to_clean;
-  let display_name = req.body.name;
+  let room_nb = req.body.room_nb;
   let service_id = req.body.service_id;
 
-  if (!status || !["Free", "Leaving", "Busy"].includes(status)) {
-    res.statusMessage = `Invalid '${status}' status.`;
+  if (!status)
+    status = "0";
+  if (!to_clean)
+    to_clean = false;
+  if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status)) {
+    res.json = {error: `Invalid '${status}' status.`};
     return res.sendStatus(400)
   }
-  console.log(typeof to_clean);
-  console.log(status);
 
   if (typeof to_clean === "undefined" || ![false, true, "false", "true", 0, 1].includes(to_clean)) {
-    res.statusMessage = "to_clean should be a boolean";
+    res.json = {error: "to_clean should be a boolean"};
     return res.sendStatus(400)
   }
   if (to_clean === "false" || to_clean === false || to_clean === 0) {
@@ -418,28 +295,27 @@ async function createBed(req, res) {
     to_clean = true
   }
 
-  if (!display_name || display_name === "") {
-    res.statusMessage = "Invalid name";
-    return res.sendStatus(400)
+  if (!room_nb) {
+    res.json = {error: "The room_nb is required"};
+    return res.sendStatus(400);
   }
-
   if (!service_id) {
-    res.statusMessage = "The service_id is required.";
+    res.json = {error: "The service_id is required."};
     return res.sendStatus(400)
   }
   service_id = parseInt(service_id, 10);
   if (isNaN(service_id)) {
-    res.statusMessage = "service_id should be an integer.";
+    res.json = {error: "service_id should be an integer."};
     return res.sendStatus(400)
   }
 
   let ret = null;
-  await graph.createBed(status, to_clean, display_name, service_id, (result) => {
+  await graph.createBed(room_nb, service_id, status, to_clean, (result) => {
     if (result.status) {
       ret = res.sendStatus(201)
     } else if (result.value.code === "No record found.") {
       res.status(400);
-      ret = res.send({error: "Service id not found."})
+      ret = res.send({error: "Service id or room not found."})
     } else {
       res.status(400);
       ret = res.send({error: result.value})
@@ -451,13 +327,9 @@ async function createBed(req, res) {
 module.exports = {
   listBeds: listBeds,
   getBed: getBed,
-  getUnboundedBed: getUnboundedBed,
-  unboundedBedDelete: unboundedBedDelete,
   createBed: createBed,
   deleteBed: deleteBed,
-  modifyBed: modifyBed,
   cleanlinessBed: cleanlinessBed,
-  modifyBedState: modifyBedState,
-  modifyBedName: modifyBedName,
-  modifyBedService: modifyBedService
+  modifyBedStatus: modifyBedStatus,
+  modifyBedRoom: modifyBedRoom
 };

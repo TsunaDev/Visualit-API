@@ -1,18 +1,12 @@
 image: node:10
 
 variables:
-  c_uid: 9458243-3cc7e803-2f5b-448c-8ee4-ae5c94c2103f
-  apiKey: PMAK-5dcb24e00b248e002abf8485-4b22fe324cf58c5f6f292c19d210d260f2
-  e_uid: 9458243-ecf7926d-35c0-4fa1-b765-5a58cdac4da3
-  POSTMAN_COLLECTION: https://api.getpostman.com/collections/${c_uid}?apikey=${apiKey}
-  POSTMAN_ENVIRONMENT: https://api.getpostman.com/environments/${e_uid}?apikey=${apiKey}
   DB_URI: bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688
   LOGS_URI: mongodb+srv://visualit:MsUgkkdNK2vfHUKd@cluster0-fwt6p.mongodb.net/test?retryWrites=true&w=majority
 
 stages:
   - build
   - test
-  - postman
 
 cache:
   paths:
@@ -32,11 +26,3 @@ testing_testing:
     - wget --spider -q http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/
     - npm start &
     - npm test
-
-postman_job:
-  stage: postman
-  image: wojciechzurek/newman-ci
-  script:
-    - wget --spider -q http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/
-    - npm start &
-    - newman run ${POSTMAN_COLLECTION} -e ${POSTMAN_ENVIRONMENT}

@@ -4,7 +4,7 @@ async function userIsAdmin(req) {
   let role = null;
   await graph.getUserRole(req.user.username, (result) => {
     if (result.status)
-      role = result.value.low;
+      role = parseInt(result.value, 10);
     else
       role = 0;
   });
@@ -47,14 +47,14 @@ module.exports = {
     if (role)
       await graph.getRole(role, function(result) {
         if (result.status) {
-          ret = res.status(200).send({name: result.value.properties.name, index: result.value.properties.index.low});
+          ret = res.status(200).send({name: result.value.properties.name, index: parseInt(result.value.properties.index, 10)});
         } else
           ret = res.status(401).send({error: result.value});
       });
     else if (index)
       await graph.getRoleByIndex(index, function(result) {
         if (result.status)
-          ret = res.status(200).send({name: result.value.properties.name, index: result.value.properties.index.low});
+          ret = res.status(200).send({name: result.value.properties.name, index: parseInt(result.value.properties.index, 10)});
         else
           ret = res.status(401).send({error: result.value});
       });
@@ -70,7 +70,7 @@ module.exports = {
         let list = [];
 
         for (let i = 0; i < result.value.length; i++) {
-          list.push({name: result.value[i].name, index: result.value[i].index.low});
+          list.push({name: result.value[i].name, index: parseInt(result.value[i].index, 10)});
         }
         ret = res.status(200).send(list);
       } else

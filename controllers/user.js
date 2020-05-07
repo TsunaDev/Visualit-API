@@ -9,13 +9,12 @@ async function checkUserRole(req) {
     let role = null;
     await graph.getUserRole(req.user.username, (result) => {
       if (result.status)
-        role = result.value.low;
+        role = parseInt(result.value, 10);
       else
         role = 0;
     });
-    if (role !== 1) {
+    if (role !== 1)
       return false;
-    }
   }
   return true;
 }
@@ -25,9 +24,9 @@ module.exports = {
     let ret = null;
     const check = await checkUserRole(req);
 
-    if (!check) {
+    if (!check)
       ret = res.status(401).send({error: {name: "InvalidRole"}});
-    } else {
+    else {
       const username = req.body["username"];
       const password = req.body["password"];
       const role = req.body["role"];
@@ -53,9 +52,11 @@ module.exports = {
       ret = res.status(401).send({error: {name: "InvalidRole"}});
     else {
       await graph.getUser(req.body["username"], function(result) {
-        if (result.status)
+        if (result.status) {
+          result.value[0].role = parseInt(result.value[0].role, 10);
+          delete result.value[0].password;
           ret = res.status(200).send(result.value[0]);
-        else
+        } else
           ret = res.status(401).send({error: result.value}); // 404?
       });
     }
@@ -109,11 +110,10 @@ module.exports = {
 
     await graph.getUserRole(req.user.username, (result) => {
       if (result.status)
-        role = result.value;
+        role = parseInt(result.value, 10);
       else
         role = 0;
     });
-
     if (role === 1)
       check = true;
 
@@ -127,7 +127,6 @@ module.exports = {
           ret = res.status(401).send({error: result.value}); // 404?
       });
     }
-
     return ret;
   }
 };
