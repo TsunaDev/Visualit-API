@@ -17,6 +17,7 @@ const serviceRouter = require('./routes/services');
 const userRouter = require('./routes/user');
 const rolesRouter = require('./routes/roles');
 const roomRouter = require('./routes/room');
+const feedbackRouter = require('./routes/feedback');
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/roles', rolesRouter);
 app.use('/beds', bedRouter);
 app.use('/rooms', roomRouter);
 app.use('/services', serviceRouter);
+app.use('/feedback', feedbackRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

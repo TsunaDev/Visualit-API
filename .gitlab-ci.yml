@@ -1,4 +1,4 @@
-image: node:10
+image: node:lts-alpine
 
 variables:
   DB_URI: bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7688
@@ -25,4 +25,5 @@ testing_testing:
   script:
     - wget --spider -q http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/
     - npm start &
+    - sleep 2
     - npm test
