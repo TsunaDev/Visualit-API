@@ -7,26 +7,10 @@
 const app = require('../app');
 const debug = require('debug')('api:server');
 const http = require('http');
-const fs = require('fs');
-const https = require('https');
 
-let server;
-let port;
-
-try {
-  let privateKey  = fs.readFileSync('../certs/fullchain.pem', 'utf8');
-  let certificate = fs.readFileSync('../certs/privkey.pem', 'utf8');
-
-  let credentials = {key: privateKey, cert: certificate};
-
-  server = https.createServer(credentials, app);
-  port = normalizePort(process.env.PORT || '443');
-  app.set('port', port);
-} catch (e) {
-  port = normalizePort(process.env.PORT || '3000');
-  app.set('port', port);
-  server = http.createServer(app);
-}
+let port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+let server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.

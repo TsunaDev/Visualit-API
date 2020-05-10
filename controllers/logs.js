@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const {BedEvent} = require('../models/bed_event');
-mongoose.connect(process.env.LOGS_URI, {useNewUrlParser: true});
+mongoose.connect(process.env.LOGS_URI, {useNewUrlParser: true, useUnifiedTopology: true});
 
 const bedUpdateEvent = (bedInfo) => {
   const obj = new BedEvent({
