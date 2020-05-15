@@ -3,6 +3,7 @@ const graph = require ('./graph');
 
 module.exports = {
   logIn: async (req, res) => {
+    console.log(req.body);
     const username = req.body["username"];
     const password = req.body["password"];
 
@@ -23,7 +24,6 @@ module.exports = {
         ret = res.status(401).send({error: result.value});
       }
     })
-
     return ret;
   }
 };

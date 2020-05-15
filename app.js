@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
+const expressFileUpload = require('express-fileupload');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -17,6 +18,7 @@ const serviceRouter = require('./routes/services');
 const userRouter = require('./routes/user');
 const rolesRouter = require('./routes/roles');
 const roomRouter = require('./routes/room');
+const etlRouter = require('./routes/etl');
 const feedbackRouter = require('./routes/feedback');
 
 const app = express();
@@ -36,6 +38,7 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(expressFileUpload());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -46,7 +49,7 @@ app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/roles', rolesRouter);
-
+app.use('/etl', etlRouter);
 app.use('/beds', bedRouter);
 app.use('/rooms', roomRouter);
 app.use('/services', serviceRouter);
