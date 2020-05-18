@@ -20,6 +20,7 @@ const rolesRouter = require('./routes/roles');
 const roomRouter = require('./routes/room');
 const etlRouter = require('./routes/etl');
 const feedbackRouter = require('./routes/feedback');
+const qrcodeRouter = require('./routes/qrcode');
 
 const app = express();
 
@@ -48,6 +49,8 @@ app.use(passport.initialize());
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
+app.use('/qr', qrcodeRouter);
+app.use('/qrcodes', express.static('qrcodes'));
 app.use('/roles', rolesRouter);
 app.use('/etl', etlRouter);
 app.use('/beds', bedRouter);
