@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+/**
+ * Schéma MongoDB pour le système de logs.
+ */
 const bedEventSchema = new Schema({
   bed_uuid: String,
   room_nb: String,

@@ -2,8 +2,32 @@ const graph = require('./graph');
 const {bedUpdateEvent} = require('./logs');
 const validate = require('uuid-validate')
 
+
+/**
+ * Vérifie que l'utilisateur possède la permission d'accéder à une route donnée.
+ * @param {string} resource La ressource liée à la route (ex: beds) 
+ * @param {string} route La route elle même (ex: update)
+ * @param {object} user Les données utilisateur reçus dans la requête.
+ * @returns {boolean} True si l'utilisateur possède la permission. False dans le cas contraire.
+ */
+async function checkPermission(resource, route, user) {
+  let ret = false;
+
+  await graph.getUserPermissions(user.username, (result) => {
+    if (result.value.includes(resource + ".all") || result.value.includes(resource + "." + route))
+      ret = true;
+  })
+
+  return ret;
+}
+
 // "0"=>Free, "1"=>Leaving, "2"=>Busy
 
+/**
+ * Récupère les infos d'un lit avant qu'on les modifie.
+ * @param {string} bedId UUID du lit.
+ * @returns {json} Les informations sur le lit en question.
+ */
 async function getOldBedInfo(bedId) {
   let oldBed = null;
   await graph.getBed(bedId, (result) => {
@@ -14,6 +38,13 @@ async function getOldBedInfo(bedId) {
   return oldBed
 }
 
+/**
+ * Met à jour les informations du lit sur le service de logs
+ * @param {string} bedId UUID du lit.
+ * @param {json} oldBed Anciennes informations du lit.
+ * @param {json} newBed Nouvelles informations.
+ * @param {object} user L'utilisateur qui a modifié les informations. 
+ */
 async function updateUtil(bedId, oldBed, newBed, user) {
   let role = null;
   await graph.getUserRole(user.username, (result) => {
@@ -37,7 +68,17 @@ async function updateUtil(bedId, oldBed, newBed, user) {
   })
 }
 
+/**
+ * Récupère une liste des lits et retourne une réponse HTTP.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP.
+ */
 async function listBeds(req, res) {
+  const check = await checkPermission("beds", "get_all", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
   let room_nb = req.query.room_nb;
   let service_id = req.query.service_id;
   let status = req.query.status;
@@ -87,7 +128,17 @@ async function listBeds(req, res) {
   return ret;
 }
 
+/**
+ * Récupère un lit spécifique en fonction des paramètres de la requête.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP. 
+ */
 async function getBed(req, res) {
+  const check = await checkPermission("beds", "get", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
   let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
@@ -115,7 +166,17 @@ async function getBed(req, res) {
   return ret;
 }
 
+/**
+ * Supprime un lit en fonction des paramètres de la requête.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP.
+ */
 async function deleteBed(req, res) {
+  const check = await checkPermission("beds", "delete", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
   let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
@@ -143,7 +204,17 @@ async function deleteBed(req, res) {
   return ret
 }
 
+/**
+ * Met à jour le statut d'un lit en fonction des paramètres de la requête.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP.
+ */
 async function modifyBedStatus(req, res) {
+  const check = await checkPermission("beds", "update_status", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
   let bed_uuid = req.params.bed_uuid;
   let status = req.body.status;
   let ret = null;
@@ -184,7 +255,17 @@ async function modifyBedStatus(req, res) {
   return ret
 }
 
+/**
+ * Met à jour l'état de nettoyage d'un lit (nettoyé/à nettoyer) en fonction des paramètres de la requête.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP.
+ */
 async function cleanlinessBed(req, res) {
+  const check = await checkPermission("beds", "update_clean", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
   let bed_uuid = req.params.bed_uuid;
   let to_clean = req.body.to_clean;
   let ret = null;
@@ -229,8 +310,17 @@ async function cleanlinessBed(req, res) {
   return ret
 }
 
-
+/**
+ * Change la chambre dans laquelle se trouve le lit en fonction des paramètres de la requête.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP.
+ */
 async function modifyBedRoom(req, res) {
+  const check = await checkPermission("beds", "update_room", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
   let bed_uuid = req.params.bed_uuid;
   let room_nb = req.body.room_nb;
   let service_id = req.body.service_id;
@@ -269,7 +359,17 @@ async function modifyBedRoom(req, res) {
   return ret
 }
 
+/**
+ * Créer un lit en fonction des paramètres de la requête.
+ * @param {*} req Les données de la requête.
+ * @param {*} res La réponse HTTP.
+ */
 async function createBed(req, res) {
+  const check = await checkPermission("beds", "create", req.user);
+    
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+    
   let status = req.body.status;
   let to_clean = req.body.to_clean;
   let room_nb = req.body.room_nb;

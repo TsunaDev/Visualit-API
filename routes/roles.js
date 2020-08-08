@@ -7,9 +7,9 @@ const passport = require('passport');
 
 router.post('/', passport.authenticate('jwt', {session: false}), controller.create);
 
-router.get('/', controller.get);
+router.get('/', passport.authenticate('jwt', {session: false}), controller.get);
 
-router.get('/all', controller.getAllRoles);
+router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAllRoles);
 
 router.put('/', passport.authenticate('jwt', {session: false}), controller.update);
 
