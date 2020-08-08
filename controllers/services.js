@@ -1,6 +1,32 @@
 const graph = require ('./graph');
 
+/**
+ * Vérifie que l'utilisateur possède la permission d'accéder à une route donnée.
+ * @param {string} resource La ressource liée à la route (ex: beds) 
+ * @param {string} route La route elle même (ex: update)
+ * @param {object} user Les données utilisateur reçus dans la requête.
+ * @returns {boolean} True si l'utilisateur possède la permission. False dans le cas contraire.
+ */
+async function checkPermission(resource, route, user) {
+  let ret = false;
+
+  await graph.getUserPermissions(user.username, (result) => {
+    if (result.value.includes(resource + ".all") || result.value.includes(resource + "." + route))
+      ret = true;
+  })
+
+  return ret;
+}
+
+/**
+ * Récupère la liste des services.
+ */
 async function listServices(req, res) {
+  const check = await checkPermission("services", "get", req.user);
+  
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
 	let ret = null
 	graph.listServices((result) => {
 		res.status(200);
@@ -15,7 +41,15 @@ async function listServices(req, res) {
 	return ret;
 }
 
+/**
+ * Supprime un service.
+ */
 async function deleteService(req, res) {
+  const check = await checkPermission("services", "delete", req.user);
+  
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
 	var service_id = req.params.service_id
 	let ret = null
 
@@ -40,7 +74,15 @@ async function deleteService(req, res) {
 	return ret
 }
 
+/**
+ * Modifie un service.
+ */
 async function modifyService(req, res) {
+  const check = await checkPermission("services", "update", req.user);
+  
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
 	var service_id = req.params.service_id
 	var name = req.body.name
 
@@ -69,7 +111,15 @@ async function modifyService(req, res) {
  	return res.end()
 }
 
+/**
+ * Crée un service.
+ */
 async function createService(req, res) {
+  const check = await checkPermission("services", "create", req.user);
+  
+  if (!check)
+    return res.status(401).send({error: {name: "PermissionDenied"}});
+
 	var name = req.body.name
 
 	if (!name || name === "") {

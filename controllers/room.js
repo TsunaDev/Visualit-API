@@ -1,27 +1,34 @@
 const graph = require ('./graph');
 
-async function checkUserRole(req) {
-  let role = null;
-  await graph.getUserRole(req.user.username, (result) => {
-    if (result.status)
-      role = parseInt(result.value, 10);
-    else
-      role = 0;
-  });
-  if (role !== 1) {
-    return false;
-  }
-  return true;
+/**
+ * Vérifie que l'utilisateur possède la permission d'accéder à une route donnée.
+ * @param {string} resource La ressource liée à la route (ex: beds) 
+ * @param {string} route La route elle même (ex: update)
+ * @param {object} user Les données utilisateur reçus dans la requête.
+ * @returns {boolean} True si l'utilisateur possède la permission. False dans le cas contraire.
+ */
+async function checkPermission(resource, route, user) {
+  let ret = false;
+
+  await graph.getUserPermissions(user.username, (result) => {
+    if (result.value.includes(resource + ".all") || result.value.includes(resource + "." + route))
+      ret = true;
+  })
+
+  return ret;
 }
 
 
 module.exports = {
+  /**
+   * Crée une chambre sur le graphe.
+   */
   create: async (req, res) => {
     let ret = null;
-    const check = await checkUserRole(req);
+    const check = await checkPermission("room", "create", req.user);
     
     if (!check)
-      return res.status(401).send({error: {name: "InvalidRole"}});
+      return res.status(401).send({error: {name: "PermissionDenied"}});
     let number = req.body.room_nb;
     let service = req.body.service_id;
     let nb_beds = req.body.nb_beds;
@@ -87,12 +94,15 @@ module.exports = {
     return ret;
   },
 
+  /**
+   * Met à jour le numéro de la chambre sur le graphe.
+   */
   updateRoomNumber: async (req, res) => {
-    const check = await checkUserRole(req);
+    const check = await checkPermission("room", "update_number", req.user);
     let ret = null;
 
     if (!check)
-      return res.status(401).send({error: {name: "InvalidRole"}});
+      return res.status(401).send({error: {name: "PermissionDenied"}});
 
     const room_nb = req.body.room_nb;
     const new_room_nb = req.body.new_room_nb;
@@ -114,12 +124,15 @@ module.exports = {
     return ret;
   },
 
+  /**
+   * Met à jour le service d'une chambre sur le graphe.
+   */
   updateRoomService: async (req, res) => {
-    const check = await checkUserRole(req);
+    const check = await checkPermission("room", "update_service", req.user);
     let ret = null;
 
     if (!check)
-      return res.status(401).send({error: {name: "InvalidRole"}});
+      return res.status(401).send({error: {name: "PermissionDenied"}});
 
     const room_nb = req.body.room_nb;
     let service = req.body.service_id;
@@ -144,12 +157,15 @@ module.exports = {
     return ret;
   },
 
+  /**
+   * Supprime une chambre sur le graphe.
+   */
   deleteRoom: async (req, res) => {
-    const check = await checkUserRole(req);
+    const check = await checkPermission("room", "delete", req.user);
     let ret = null;
 
     if (!check)
-      return res.status(401).send({error: {name: "InvalidRole"}});
+      return res.status(401).send({error: {name: "PermissionDenied"}});
 
     const room_nb = req.body.room_nb;
     let service = req.body.service_id;
@@ -170,7 +186,15 @@ module.exports = {
     return res;
   },
 
+  /**
+   * Récupère une chambre sur le graphe.
+   */
   getRoom: async (req, res) => {
+    const check = await checkPermission("room", "get", req.user);
+    
+    if (!check)
+      return res.status(401).send({error: {name: "PermissionDenied"}});
+
     let ret = null;
     const room_nb = req.query.room_nb;
     let service = req.query.service_id;
@@ -191,7 +215,15 @@ module.exports = {
     return ret;
   },
 
+  /**
+   * Récupère toutes les chambres présentes sur le graphe.
+   */
   getAllRooms: async (req, res) => {
+    const check = await checkPermission("room", "get_all", req.user);
+    
+    if (!check)
+      return res.status(401).send({error: {name: "PermissionDenied"}});
+
     let ret = null;
     let service = req.query.service_id
 

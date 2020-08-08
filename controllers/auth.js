@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const graph = require ('./graph');
 
 module.exports = {
+  /**
+   * Vérifie les informations renseignées dans la requête et modifie la réponse en conséquence.
+   */
   logIn: async (req, res) => {
     console.log(req.body);
     const username = req.body["username"];
@@ -12,12 +15,18 @@ module.exports = {
 
     let ret = null;
 
-    await graph.getUser(username, function(result) {
-      if (result.status && result.value[0].password === password) {
+    await graph.getUser(username, async function(result) {
+      if (result.status && result.value[0] && result.value[0].password === password) {
         let token = jwt.sign({username}, process.env["JWTSECRET"], {
           'expiresIn': process.env["JWTEXP"]
         });
-        ret = res.status(200).send({token, expiresIn: process.env.JWTEXP});
+
+        let permissions = null;
+
+        await graph.getUserPermissions(username, (result) => {
+          permissions = result.value;
+        })
+        ret = res.status(200).send({token, expiresIn: process.env.JWTEXP, permissions: permissions});
       } else if (result.status) {
         ret = res.status(401).send({error: {name: "WrongPassword"}});
       } else {

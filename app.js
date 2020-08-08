@@ -1,3 +1,6 @@
+/**
+ * Script principal de l'application permettant de configurer les propriétés du site et d'appeler les différentes routes.
+ */
 const createError = require('http-errors');
 const express = require('express');
 const expressFileUpload = require('express-fileupload');

@@ -3,6 +3,9 @@ const pathLib = require('path');
 const appDir = pathLib.dirname(require.main.filename) + "/..";
 
 module.exports = {
+  /**
+   * Génère un QRCode en fonction du code donné (Utilisé pour les lits en envoyant leur UUID comme code).
+   */
   generate: async (req, res) => {
     if (!req.query["code"])
       res.status(401).send({error: {name: "Missing parameter 'code'"}});
