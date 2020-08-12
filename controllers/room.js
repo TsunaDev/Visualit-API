@@ -51,7 +51,7 @@ module.exports = {
 
     await graph.getRoom(number, service, function(result) {
       if (result.status) {
-        res.statusMessage = "Room already exists";
+        res.json = {error: {name: "UniqueConstraintError", info: "Room already exists"}};
         res.status(400);
       }
     });
@@ -67,27 +67,27 @@ module.exports = {
       if (result.status)
         room = result.value;
       else {
-        res.statusMessage = {error: result.value};
-        res.status(400);
+        res.json = {error: result.value};
+        res.status(500);
       }
     });
     let beds = [];
 
-    if (res.statusCode !== 400) {
+    if (res.statusCode !== 400 && res.statusCode !== 500) {
       for (i = 0; i < nb_beds; i++) {
         await graph.createBed(number, service, "0", false, function(result) {
           if (result.status) {
             result.value.properties.status = parseInt(result.value.properties.status, 10);
             beds.push(result.value.properties);
           } else {
-            res.statusMessage = {error: result.value};
-            res.status(400)
+            res.json = {error: result.value};
+            res.status(500)
           }
         });
       }
     }
 
-    if (res.statusCode !== 400)
+    if (res.statusCode !== 400 && res.statusCode !== 500)
       ret = res.status(201).send({number: room.properties.number, service_id: service, beds: beds});
     else
       ret = res.end();
@@ -98,7 +98,7 @@ module.exports = {
    * Met à jour le numéro de la chambre sur le graphe.
    */
   updateRoomNumber: async (req, res) => {
-    const check = await checkPermission("room", "update_number", req.user);
+    const check = await checkPermission("room", "update", req.user);
     let ret = null;
 
     if (!check)
@@ -119,7 +119,7 @@ module.exports = {
       if (result.status)
         ret = res.status(202).send("Room number successfuly modified.");
       else
-        ret = res.status(400).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
     });
     return ret;
   },
@@ -128,7 +128,7 @@ module.exports = {
    * Met à jour le service d'une chambre sur le graphe.
    */
   updateRoomService: async (req, res) => {
-    const check = await checkPermission("room", "update_service", req.user);
+    const check = await checkPermission("room", "update", req.user);
     let ret = null;
 
     if (!check)
@@ -152,7 +152,7 @@ module.exports = {
       if (result.status)
         ret = res.status(202).send("Room's service successfully modified.");
       else
-        ret = res.status(401).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
     });
     return ret;
   },
@@ -181,7 +181,7 @@ module.exports = {
       if (result.status)
         ret = res.status(204).send({info: "Room successfully deleted."});
       else
-        ret = res.status(400).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
     });
     return res;
   },
@@ -199,19 +199,34 @@ module.exports = {
     const room_nb = req.query.room_nb;
     let service = req.query.service_id;
   
-    if (!room_nb || !service)
-      return res.status(400).send({error: {name: "MissingParameter"}});
-    
-    service = parseInt(service, 10);
-    if (isNaN(service))
-      return res.status(400).send({error: {name: "BadParameter", info: "service_id has to be an integer."}});
-    
-    await graph.getRoom(room_nb, service, function(result) {
-      if (result.status)
-        ret = res.status(200).send(result.value);
-      else
-        ret = res.status(400).send({error: result.value})
-    });
+    if (!room_nb) {
+      if (service) {
+        service = parseInt(service, 10);
+        if (isNaN(service))
+          return res.status(400).send({error: {name: "BadParameter", info: "service_id has to be an integer."}});
+      }
+
+      await graph.listRooms(service, function(result) {
+        if (result.status)
+          ret = res.status(200).send(result.value);
+        else
+          ret = res.status(500).send({error: result.value});
+      });
+    } else {   
+      if (!service)
+        return res.status(400).send({error: {name: "MissingParameter"}});
+      
+      service = parseInt(service, 10);
+      if (isNaN(service))
+        return res.status(400).send({error: {name: "BadParameter", info: "service_id has to be an integer."}});
+      
+      await graph.getRoom(room_nb, service, function(result) {
+        if (result.status)
+          ret = res.status(200).send(result.value);
+        else
+          ret = res.status(500).send({error: result.value})
+      });
+    }
     return ret;
   },
 
@@ -219,7 +234,7 @@ module.exports = {
    * Récupère toutes les chambres présentes sur le graphe.
    */
   getAllRooms: async (req, res) => {
-    const check = await checkPermission("room", "get_all", req.user);
+    const check = await checkPermission("room", "get", req.user);
     
     if (!check)
       return res.status(401).send({error: {name: "PermissionDenied"}});
@@ -237,7 +252,7 @@ module.exports = {
       if (result.status)
         ret = res.status(200).send(result.value);
       else
-        ret = res.status(400).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
     });
     return ret;
   }

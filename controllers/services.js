@@ -54,20 +54,20 @@ async function deleteService(req, res) {
 	let ret = null
 
 	if (!service_id) {
-		res.statusMessage = "The service_id is required for service deletion"
-		return res.sendStatus(404)
+		res.json = {error: {name: "MissingParameter", info: "The service_id is required for service deletion"}};
+		return res.sendStatus(400)
 	}
 	service_id = parseInt(service_id, 10);
 	if (isNaN(service_id)) {
-		res.statusMessage = "Service_id should be an integer."
+		res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
 		return res.sendStatus(400)
 	}
 	graph.deleteService(service_id, (result) => {
 		if (result.status == false) {
-       		res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
-      		ret = res.sendStatus(404)
+       		res.json = {error: {name: "ItemNotFound", info:`Service corresponding to service_id ${service_id} not found.`}};
+      		ret = res.sendStatus(404);
        	} else {
-       		ret = res.sendStatus(204)
+       		ret = res.sendStatus(204);
        	}
 	})
 
@@ -87,16 +87,16 @@ async function modifyService(req, res) {
 	var name = req.body.name
 
 	if (!service_id) {
-		res.statusMessage = "The service_id is required for service modification"
+		res.json = {error: {name: "MissingParameter", info: "The service_id is required for service modification"}};
 		return res.sendStatus(404)
 	}
 	if (!name || name === "") {
-		res.statusMessage = "The name is required for service modification"
+		res.json = {error: {name: "MissingParameter", info: "The name is required for service modification"}};
 		return res.sendStatus(400)
 	}
 	service_id = parseInt(service_id, 10);
 	if (isNaN(service_id)) {
-		res.statusMessage = "Service_id should be an integer."
+		res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
 		return res.sendStatus(400)
 	}
 
@@ -104,11 +104,11 @@ async function modifyService(req, res) {
 		if (result.status) {
 			res.status(204)
 		} else {
-			res.statusMessage = `Service corresponding to service_id ${service_id} not found.`
+			res.json = {error: {name: "ItemNotFound", info: `Service corresponding to service_id ${service_id} not found.`}};
 			res.status(404)
 		}
 	})
- 	return res.end()
+	return res.end()
 }
 
 /**
@@ -123,7 +123,7 @@ async function createService(req, res) {
 	var name = req.body.name
 
 	if (!name || name === "") {
-		res.statusMessage = "The name is required for service creation"
+		res.json = {error: {name: "MissingParameter", info: "The name is required for service creation"}};
 		res.status(400)
 		return res.end()
 	}
@@ -131,8 +131,8 @@ async function createService(req, res) {
 		if (result.status) {
 			res.status(201)
 		} else {
-			res.status(401)
-			res.statusMessage = result.value
+			res.status(500)
+			res.json = result.value
 		}
 	})
  	return res.end()

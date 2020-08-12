@@ -76,12 +76,12 @@ describe("Tests with token required", () => {
   });
 
   describe("Registration fail test", () => {
-    it("should return a 401 code", done => {
+    it("should return a 400 code", done => {
       server
         .post("/user/")
         .set('Authorization', `Bearer ${adminToken}`)
         .send("username=test")
-        .expect(401)
+        .expect(400)
         .end(err => {
           if (err) return done(err);
           done();
@@ -106,11 +106,11 @@ describe("Tests with token required", () => {
   });
   
   describe("Log in test failure", () => {
-    it("should return a 401 error code", done => {
+    it("should return a 400 error code", done => {
         server
             .post("/auth")
             .send("username=foo&password=toto")
-            .expect(401)
+            .expect(400)
             .end(err => {
                 if (err) return done(err);
                 done();
@@ -331,11 +331,11 @@ describe("Tests with token required", () => {
     });
   });
 
-  describe("Change role name", () => {
+  describe("Change role permissions", () => {
     it("should return a 202 code", done => {
       server
         .put("/roles/")
-        .send({"role": "cleaner", "name": "cleaningagent"})
+        .send({"role": "cleaner", "permissions": ["services.get", "services.getAll", "rooms.get", "rooms.getAll", "beds.clean", "user.update.self"]})
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(202)
         .end(err => {

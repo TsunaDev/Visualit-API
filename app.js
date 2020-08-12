@@ -9,6 +9,36 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "Visualit API",
+      description: "API permettant de gérer les différentes ressources de Visualit",
+      servers: ["http://localhost:3000"]
+    }
+  },
+  apis: ["./routes/*.js"]
+}
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+swaggerDocs.security = [
+  {
+    Bearer: []
+  }
+];
+
+swaggerDocs.securityDefinitions = {
+  Bearer: {
+    name: "Authorization",
+    in: "header",
+    type: "apiKey",
+    description: "Please prefix your JWT with the word bearer (and a space)."
+  }
+};
 
 require('dotenv').config();
 require('./config/env');
@@ -35,6 +65,8 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Methods", "*");
   next();
 });
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

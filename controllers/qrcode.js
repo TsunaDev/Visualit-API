@@ -8,7 +8,7 @@ module.exports = {
    */
   generate: async (req, res) => {
     if (!req.query["code"])
-      res.status(401).send({error: {name: "Missing parameter 'code'"}});
+      res.status(400).send({error: {name: "Missing parameter 'code'"}});
     else {
       let path = "/qrcodes/";
       

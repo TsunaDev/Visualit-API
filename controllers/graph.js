@@ -244,7 +244,10 @@ module.exports = {
     return GraphCall('MATCH (u:Role {name: "' + role + '"}) SET ' + setProperties(properties) + ' RETURN u', callback);
   },
 
-  
+  updateRolePermissions: (role, permissions, callback) => {
+    return GraphCall('MATCH (u:Role {name: "' + role + '"}) SET u.permissions = ' + JSON.stringify(permissions) + ' RETURN u', callback);
+  },
+
   /**
    * Met à jour un rôle en l'identifiant par son index.
    * @param {number} index Index du rôle.
@@ -254,6 +257,11 @@ module.exports = {
   updateRoleByIndex: (index, properties, callback) => {
     return GraphCall('MATCH (u:Role {index: "' + index + '"}) SET ' + setProperties(properties) + ' RETURN u', callback);
   },
+
+  updateRolePermissionsByIndex: (index, permissions, callback) => {
+    return GraphCall('MATCH (u:Role {index: "' + index + '"}) SET u.permissions = ' + JSON.stringify(permissions) + ' RETURN u', callback);
+  },
+
 
   /**
    * Supprime un rôle du graphe.
