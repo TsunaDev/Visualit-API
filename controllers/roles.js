@@ -25,21 +25,21 @@ module.exports = {
   create: async(req, res) => {
     let ret = null;
     const check = await checkPermission("roles", "create", req.user);
-    
+
     if (!check)
-      return res.status(401).send({error: {name: "PermissionDenied"}});
+      return res.status(401).send({error: "PermissionDenied"});
     const role = req.body.role
     const index = req.body.index
     const permissions = req.body.permissions;
 
     if (!role || !index || !permissions)
-      ret = res.status(401).send({error: {name: "MissingParameter"}});
+      ret = res.status(400).send({error: "MissingParameter"});
     else {
       await graph.createRole(role, index, permissions, function(result) {
         if (result.status)
           ret = res.sendStatus(201);
         else
-          ret = res.status(401).send({error: result.value}); // TODO: Revoir les normes
+          ret = res.status(500).send({error: result.value});
       });
     }
     return ret;
@@ -52,10 +52,10 @@ module.exports = {
     const index = req.body.index
     const role = req.body.role
     const check = await checkPermission("roles", "get", req.user);
-    
+
     if (!check)
-      return res.status(401).send({error: {name: "PermissionDenied"}});
-  
+      return res.status(401).send({error: "PermissionDenied"});
+
     let ret = null;
 
     if (role)
@@ -63,18 +63,28 @@ module.exports = {
         if (result.status) {
           ret = res.status(200).send({name: result.value.properties.name, index: parseInt(result.value.properties.index, 10)});
         } else
-          ret = res.status(401).send({error: result.value});
+          ret = res.status(500).send({error: result.value});
       });
     else if (index)
       await graph.getRoleByIndex(index, function(result) {
         if (result.status)
           ret = res.status(200).send({name: result.value.properties.name, index: parseInt(result.value.properties.index, 10)});
         else
-          ret = res.status(401).send({error: result.value});
+          ret = res.status(500).send({error: result.value});
       });
     else
-      ret = res.status(401).send({error: "MissingParameter"});
-    
+      await graph.getAllRoles(function(result) {
+        if (result.status) {
+          let list = [];
+
+          for (let i = 0; i < result.value.length; i++) {
+            list.push({name: result.value[i].name, index: parseInt(result.value[i].index, 10), permissions: result.value[i].permissions});
+          }
+          ret = res.status(200).send(list);
+        } else
+          ret = res.status(500).send({error: result.value});
+      });
+
     return ret;
   },
 
@@ -82,11 +92,11 @@ module.exports = {
    * Récupère tous les rôles présents sur le graphe.
    */
   getAllRoles: async(req, res) => {
-    const check = await checkPermission("roles", "get_all", req.user);
-    
+    const check = await checkPermission("roles", "get", req.user);
+
     if (!check)
-      return res.status(401).send({error: {name: "PermissionDenied"}});
-    
+      return res.status(401).send({error: "PermissionDenied"});
+
     await graph.getAllRoles(function(result) {
       if (result.status) {
         let list = [];
@@ -96,7 +106,7 @@ module.exports = {
         }
         ret = res.status(200).send(list);
       } else
-        ret = res.status(401).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
     });
   },
 
@@ -109,20 +119,51 @@ module.exports = {
     let args = JSON.parse(JSON.stringify(req.body));
     delete args.role
     const check = await checkPermission("roles", "update", req.user);
-    
+
     if (!check)
-      return res.status(401).send({error: {name: "PermissionDenied"}});
-    
+      return res.status(401).send({error: "PermissionDenied"});
+
     if (role) {
       await graph.updateRole(role, args, function(result) {
         if (result.status)
           ret = res.status(202).send(result.value.properties);
         else {
-          ret = res.status(401).send({error: result.value});
+          ret = res.status(500).send({error: result.value});
         }
       });
     } else
-      ret = res.status(401).send({error: "MissingParameter"})
+      ret = res.status(400).send({error: "MissingParameter"})
+
+    return ret;
+  },
+
+  updatePermissions: async(req, res) => {
+    let ret = null;
+    const role = req.body["role"];
+    const index = req.body["index"];
+    const permissions = req.body["permissions"];
+
+    const check = await checkPermission("roles", "update", req.user);
+
+    if (!check)
+      return res.status(401).send({error: "PermissionDenied"});
+
+    if (role && permissions)
+      await graph.updateRolePermissions(role, permissions, function(result) {
+        if (result.status)
+          ret = res.sendStatus(202);
+        else
+          ret = res.status(500).send({error: result.value});
+      });
+    else if (index && permissions)
+      await graph.updateRolePermissionsByIndex(index, permissions, function(result) {
+        if (result.status)
+          ret = res.sendStatus(202);
+        else
+          ret = res.status(500).send({error: result.value});
+      });
+    else
+      ret = res.status(400).send({error: "MissingParameter"});
 
     return ret;
   },
@@ -137,24 +178,24 @@ module.exports = {
     const check = await checkPermission("roles", "delete", req.user);
     
     if (!check)
-      return res.status(401).send({error: {name: "PermissionDenied"}});
+      return res.status(401).send({error: "PermissionDenied"});
 
     if (role) {
       await graph.deleteRole(role, function(result) {
         if (result.status)
           ret = res.sendStatus(204);
         else
-          ret = res.status(401).send({error: result.value});
+          ret = res.status(500).send({error: result.value});
       });
     } else if (index) {
       await graph.deleteRoleByIndex(index, function(result) {
         if (result.status)
           ret = res.sendStatus(204);
         else
-          ret = res.status(401).send({error: result.value});
+          ret = res.status(500).send({error: result.value});
       });
     } else
-      ret = res.status(401).send({error: "MissingParameter"});
+      ret = res.status(400).send({error: "MissingParameter"});
 
     return ret;
   }

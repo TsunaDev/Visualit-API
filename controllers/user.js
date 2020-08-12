@@ -47,13 +47,13 @@ module.exports = {
     const role = req.body["role"];
 
     if (!username || !password || !role)
-    return res.status(401).send({error: {name: "MissingParameter"}});
+    return res.status(400).send({error: {name: "MissingParameter"}});
 
     await graph.createUser(username, password, role, function(result) {
       if (result.status)
         ret = res.sendStatus(201);
       else
-        ret = res.status(401).send({error: result.value}); // TODO: Revoir les normes
+        ret = res.status(500).send({error: result.value});
     });
     return ret;
   },
@@ -69,14 +69,14 @@ module.exports = {
     if (!check)
       return res.status(401).send({error: {name: "PermissionDenied"}});
 
-      await graph.getUser(req.body["username"], function(result) {
-        if (result.status) {
-          result.value[0].role = parseInt(result.value[0].role, 10);
-          delete result.value[0].password;
-          ret = res.status(200).send(result.value[0]);
-        } else
-          ret = res.status(401).send({error: result.value}); // 404?
-      });
+    await graph.getUser(req.body["username"], function(result) {
+      if (result.status) {
+        result.value[0].role = parseInt(result.value[0].role, 10);
+        delete result.value[0].password;
+        ret = res.status(200).send(result.value[0]);
+      } else
+        ret = res.status(404).send({error: result.value});
+    });
 
     return ret;
   },
@@ -98,7 +98,7 @@ module.exports = {
       if (result.status)
         ret = res.status(202).send(result.value.properties);
       else {
-        ret = res.status(401).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
       }
     });
 
@@ -120,7 +120,7 @@ module.exports = {
       if (result.status)
         ret = res.sendStatus(204);
       else
-        ret = res.status(401).send({error: result.value});
+        ret = res.status(500).send({error: result.value});
     });
     
     return ret;
@@ -146,7 +146,7 @@ module.exports = {
       if (result.status)
         ret = res.status(200).send(result.value);
       else
-        ret = res.status(401).send({error: result.value}); // 404?
+        ret = res.status(404).send({error: result.value}); // 404?
     });
     return ret;
   }

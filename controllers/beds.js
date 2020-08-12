@@ -74,10 +74,10 @@ async function updateUtil(bedId, oldBed, newBed, user) {
  * @param {*} res La réponse HTTP.
  */
 async function listBeds(req, res) {
-  const check = await checkPermission("beds", "get_all", req.user);
+  const check = await checkPermission("beds", "get", req.user);
     
   if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+    return res.status(401).send({error: "PermissionDenied"});
 
   let room_nb = req.query.room_nb;
   let service_id = req.query.service_id;
@@ -87,14 +87,14 @@ async function listBeds(req, res) {
   if (service_id) {
     service_id = parseInt(service_id, 10);
     if (isNaN(service_id)) {
-      res.json = {error: "Service_id should be an integer."};
+      res.json = {error: {name: "BadParameter", info: "Service_id should be an integer."}};
       return res.sendStatus(400)
     }
   }
 
   
   if (status && !["0", "1", "2"].includes(status)) {
-    res.json = {error: `Invalid '${v}' status.`};
+    res.json = {error: {name: "BadParameter", info: `Invalid '${v}' status.`}};
     return res.sendStatus(400)
   }
 
@@ -104,7 +104,7 @@ async function listBeds(req, res) {
   }
 
   if (typeof to_clean != "undefined" && !["false", "true", 0, 1].includes(to_clean)) {
-    res.json = {error: "to_clean should be a boolean"};
+    res.json = {error: {name: "BadParameter", info: "to_clean should be a boolean"}};
     return res.sendStatus(400)
   }
 
@@ -137,23 +137,23 @@ async function getBed(req, res) {
   const check = await checkPermission("beds", "get", req.user);
     
   if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+    return res.status(401).send({error: "PermissionDenied"});
 
   let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
   if (!bed_uuid) {
-    res.json = {error: "The bed_uuid is required."};
-    return res.sendStatus(404)
+    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
+    return res.sendStatus(400)
   }
   if (!validate(bed_uuid, 4)) {
-    res.json = {error: "bed_uuid should be a valid uuid."};
+    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
     return res.sendStatus(400)
   }
 
   await graph.getBed(bed_uuid, (result) => {
     if (result.value.length === 0) {
-      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
+      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}};
       ret = res.sendStatus(404);
     } else {
       result.value[0].service_id = result.value[0].service_id.low;
@@ -181,23 +181,23 @@ async function deleteBed(req, res) {
   let ret = null;
 
   if (!bed_uuid) {
-    res.json = {error: "The bed_uuid is required."};
-    return res.sendStatus(404)
+    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
+    return res.sendStatus(400)
   }
   
   if (!validate(bed_uuid, 4)) {
-    res.json = {error: "bed_uuid should be a valide uuid."};
+    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valide uuid."}};
     return res.sendStatus(400)
   }
 
   await graph.deleteBed(bed_uuid, (result) => {
     if (result.status) {
-      ret = res.sendStatus(204)
+      ret = res.sendStatus(204);
     } else if (result.value.code === "No record found.") {
-      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
-      ret = res.sendStatus(400)
+      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}};
+      ret = res.sendStatus(404);
     } else {
-      res.status(400);
+      res.status(500);
       ret = res.send({error: result.value})
     }
   });
@@ -213,29 +213,30 @@ async function modifyBedStatus(req, res) {
   const check = await checkPermission("beds", "update_status", req.user);
     
   if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+    return res.status(401).send({error: "PermissionDenied"});
 
   let bed_uuid = req.params.bed_uuid;
   let status = req.body.status;
   let ret = null;
 
   if (!bed_uuid) {
-    res.json = {error: "The bed_uuid is required."};
-    return res.sendStatus(404)
+    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
+    return res.sendStatus(400)
   }
   
   if (!status) {
-    res.json = {error: "The status is required."};
+    res.json = {error: {name: "MissingParameter", info: "The status is required."}};
+    return res.sendStatus(400);
   }
 
   if (!validate(bed_uuid, 4)) {
-    res.json = {error: "bed_uuid should be a valid uuid."};
-    return res.sendStatus(400)
+    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
+    return res.sendStatus(400);
   }
 
   if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status)) {
-    res.json = {error: `Invalid '${status}' status.`};
-    return res.sendStatus(400)
+    res.json = {error: {name: "BadParameter", info: `Invalid '${status}' status.`}};
+    return res.sendStatus(400);
   }
 
   let oldBed = await getOldBedInfo(bed_uuid);
@@ -248,7 +249,7 @@ async function modifyBedStatus(req, res) {
       res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
       ret = res.sendStatus(400)
     } else {
-      res.status(400);
+      res.status(500);
       ret = res.send({error: result.value})
     }
   });
@@ -264,24 +265,24 @@ async function cleanlinessBed(req, res) {
   const check = await checkPermission("beds", "update_clean", req.user);
     
   if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+    return res.status(401).send({error: "PermissionDenied"});
 
   let bed_uuid = req.params.bed_uuid;
   let to_clean = req.body.to_clean;
   let ret = null;
 
   if (!bed_uuid) {
-    res.json = {error: "The bed_uuid is required."};
-    return res.sendStatus(404)
+    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
+    return res.sendStatus(400)
   }
 
   if (!validate(bed_uuid, 4)) {
-    res.json = {error: "bed_id should be a valid uuid."};
+    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
     return res.sendStatus(400)
   }
 
   if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
-    res.json = {error: "to_clean should be a boolean"};
+    res.json = {error: {name: "BadParameter", info: "to_clean should be a boolean"}};
     return res.sendStatus(400)
   }
 
@@ -299,10 +300,10 @@ async function cleanlinessBed(req, res) {
       ret = res.sendStatus(204);
       updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
     } else if (result.value.code === "No record found.") {
-      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
-      ret = res.sendStatus(400)
+      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}};
+      ret = res.sendStatus(404)
     } else {
-      res.status(400);
+      res.status(500);
       ret = res.send({error: result.value})
     }
   });
@@ -317,9 +318,9 @@ async function cleanlinessBed(req, res) {
  */
 async function modifyBedRoom(req, res) {
   const check = await checkPermission("beds", "update_room", req.user);
-    
+
   if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+    return res.status(401).send({error: "PermissionDenied"});
 
   let bed_uuid = req.params.bed_uuid;
   let room_nb = req.body.room_nb;
@@ -328,19 +329,19 @@ async function modifyBedRoom(req, res) {
 
 
   if (!bed_uuid) {
-    res.json = {error: "The bed_uuid is required."};
-    return res.sendStatus(404)
+    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
+    return res.sendStatus(400)
   }
 
   if (!validate(bed_id, 4)) {
-    res.json = {error: "bed_uuid should be a valid uuid."};
+    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
     return res.sendStatus(400)
   }
 
   service_id = parseInt(service_id, 10);
 
   if (typeof service_id == "undefined" || isNaN(service_id)) {
-    res.json = {error: "service_id should be an integer."};
+    res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
     return res.sendStatus(400)
   }
 
@@ -348,10 +349,10 @@ async function modifyBedRoom(req, res) {
     if (result.status) {
       ret = res.sendStatus(204)
     } else if (result.value.code === "No record found.") {
-      res.statusMessage = `Bed corresponding to bed_uuid ${bed_uuid} or room ${room_nb} in service ${service_id} not found.`;
-      ret = res.sendStatus(400)
+      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} or room ${room_nb} in service ${service_id} not found.`}};
+      ret = res.sendStatus(404)
     } else {
-      res.status(400);
+      res.status(500);
       ret = res.send({error: result.value})
     }
   });
@@ -368,7 +369,7 @@ async function createBed(req, res) {
   const check = await checkPermission("beds", "create", req.user);
     
   if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+    return res.status(401).send({error: "PermissionDenied"});
     
   let status = req.body.status;
   let to_clean = req.body.to_clean;
@@ -380,12 +381,12 @@ async function createBed(req, res) {
   if (!to_clean)
     to_clean = false;
   if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status)) {
-    res.json = {error: `Invalid '${status}' status.`};
+    res.json = {error: {name: "BadParameter", info: `Invalid '${status}' status.`}};
     return res.sendStatus(400)
   }
 
   if (typeof to_clean === "undefined" || ![false, true, "false", "true", 0, 1].includes(to_clean)) {
-    res.json = {error: "to_clean should be a boolean"};
+    res.json = {error: {name: "BadParameter", info: "to_clean should be a boolean"}};
     return res.sendStatus(400)
   }
   if (to_clean === "false" || to_clean === false || to_clean === 0) {
@@ -396,16 +397,16 @@ async function createBed(req, res) {
   }
 
   if (!room_nb) {
-    res.json = {error: "The room_nb is required"};
+    res.json = {error: {name: "MissingParameter", info: "The room_nb is required"}};
     return res.sendStatus(400);
   }
   if (!service_id) {
-    res.json = {error: "The service_id is required."};
+    res.json = {error: {name: "MissingParameter", info: "The service_id is required."}};
     return res.sendStatus(400)
   }
   service_id = parseInt(service_id, 10);
   if (isNaN(service_id)) {
-    res.json = {error: "service_id should be an integer."};
+    res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
     return res.sendStatus(400)
   }
 
@@ -415,9 +416,9 @@ async function createBed(req, res) {
       ret = res.sendStatus(201)
     } else if (result.value.code === "No record found.") {
       res.status(400);
-      ret = res.send({error: "Service id or room not found."})
+      ret = res.send({error: {name: "ItemNotFound", info: "Service id or room not found."}});
     } else {
-      res.status(400);
+      res.status(500);
       ret = res.send({error: result.value})
     }
   });
