@@ -52,7 +52,7 @@ const passport = require('passport');
  *   404NotFound:
  *     description: L'élément recherché est introuvable.
  *     schema:
- *       $ref: '#/definition/NotFoundResponse'
+ *       $ref: '#/definitions/NotFoundResponse'
  *   500Internal:
  *     description: Un problème est survenu sur le serveur. Veuillez en référer à un administrateur.
  */
