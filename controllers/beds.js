@@ -219,7 +219,7 @@ async function modifyBedStatus(req, res) {
 
   await graph.modifyStatus(bed_uuid, status, (result) => {
     if (result.status) {
-      ret = res.sendStatus(204);
+      ret = res.sendStatus(202);
       updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
     } else if (result.value.code === "No record found.")
       ret = res.status(400).send({error:  {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
@@ -264,7 +264,7 @@ async function cleanlinessBed(req, res) {
 
   await graph.modifyClean(bed_uuid, to_clean, (result) => {
     if (result.status) {
-      ret = res.sendStatus(204);
+      ret = res.sendStatus(202);
       updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
     } else if (result.value.code === "No record found.")
       ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
@@ -305,7 +305,7 @@ async function modifyBedRoom(req, res) {
 
   await graph.modifyBedRoom(bed_uuid, room_nb, service_id, (result) => {
     if (result.status)
-      ret = res.sendStatus(204)
+      ret = res.sendStatus(202)
     else if (result.value.code === "No record found.")
       ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} or room ${room_nb} in service ${service_id} not found.`}});
     else
