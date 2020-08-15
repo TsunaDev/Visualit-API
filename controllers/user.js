@@ -146,7 +146,7 @@ module.exports = {
       if (result.status)
         ret = res.status(200).send(result.value);
       else
-        ret = res.status(404).send({error: result.value}); // 404?
+        ret = res.status(404).send({error: result.value});
     });
     return ret;
   }

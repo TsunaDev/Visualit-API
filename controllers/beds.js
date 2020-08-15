@@ -86,27 +86,21 @@ async function listBeds(req, res) {
 
   if (service_id) {
     service_id = parseInt(service_id, 10);
-    if (isNaN(service_id)) {
-      res.json = {error: {name: "BadParameter", info: "Service_id should be an integer."}};
-      return res.sendStatus(400)
-    }
+    if (isNaN(service_id))
+      return res.status(400).send({error: {name: "BadParameter", info: "Service_id should be an integer."}});
   }
 
   
-  if (status && !["0", "1", "2"].includes(status)) {
-    res.json = {error: {name: "BadParameter", info: `Invalid '${v}' status.`}};
-    return res.sendStatus(400)
-  }
+  if (status && !["0", "1", "2"].includes(status))
+    return res.status(400).send({error: {name: "BadParameter", info: `Invalid '${v}' status.`}});
 
   let tmp_to_clean = parseInt(to_clean, 10);
   if (!isNaN(to_clean)) {
     to_clean = tmp_to_clean
   }
 
-  if (typeof to_clean != "undefined" && !["false", "true", 0, 1].includes(to_clean)) {
-    res.json = {error: {name: "BadParameter", info: "to_clean should be a boolean"}};
-    return res.sendStatus(400)
-  }
+  if (typeof to_clean != "undefined" && !["false", "true", 0, 1].includes(to_clean))
+    return res.status(400).send({error: {name: "BadParameter", info: "to_clean should be a boolean"}});
 
   if (to_clean === "false" || to_clean === 0) {
     to_clean = false
@@ -142,14 +136,11 @@ async function getBed(req, res) {
   let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
-  if (!bed_uuid) {
-    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
-    return res.sendStatus(400)
-  }
-  if (!validate(bed_uuid, 4)) {
-    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
-    return res.sendStatus(400)
-  }
+  if (!bed_uuid)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The bed_uuid is required."}});
+
+  if (!validate(bed_uuid, 4))
+    return res.status(400).send({error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}});
 
   await graph.getBed(bed_uuid, (result) => {
     if (result.value.length === 0) {
@@ -180,26 +171,19 @@ async function deleteBed(req, res) {
   let bed_uuid = req.params.bed_uuid;
   let ret = null;
 
-  if (!bed_uuid) {
-    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
-    return res.sendStatus(400)
-  }
+  if (!bed_uuid)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The bed_uuid is required."}});
   
-  if (!validate(bed_uuid, 4)) {
-    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valide uuid."}};
-    return res.sendStatus(400)
-  }
+  if (!validate(bed_uuid, 4))
+    return res.status(400).send({error: {name: "BadParameter", info: "bed_uuid should be a valide uuid."}});
 
   await graph.deleteBed(bed_uuid, (result) => {
-    if (result.status) {
+    if (result.status)
       ret = res.sendStatus(204);
-    } else if (result.value.code === "No record found.") {
-      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}};
-      ret = res.sendStatus(404);
-    } else {
-      res.status(500);
-      ret = res.send({error: result.value})
-    }
+    else if (result.value.code === "No record found.")
+      ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
+    else
+      ret = res.status(500).send({error: result.value})
   });
   return ret
 }
@@ -219,25 +203,17 @@ async function modifyBedStatus(req, res) {
   let status = req.body.status;
   let ret = null;
 
-  if (!bed_uuid) {
-    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
-    return res.sendStatus(400)
-  }
+  if (!bed_uuid)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The bed_uuid is required."}});
   
-  if (typeof status === 'undefined') {
-    res.json = {error: {name: "MissingParameter", info: "The status is required."}};
-    return res.sendStatus(400);
-  }
+  if (typeof status === 'undefined')
+    return res.status(400).send({error: {name: "MissingParameter", info: "The status is required."}});
 
-  if (!validate(bed_uuid, 4)) {
-    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
-    return res.sendStatus(400);
-  }
+  if (!validate(bed_uuid, 4))
+    return res.status(400).send({error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}});
 
-  if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status)) {
-    res.json = {error: {name: "BadParameter", info: `Invalid '${status}' status.`}};
-    return res.sendStatus(400);
-  }
+  if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status))
+    return res.status(400).send({error: {name: "BadParameter", info: `Invalid '${status}' status.`}});
 
   let oldBed = await getOldBedInfo(bed_uuid);
 
@@ -245,13 +221,10 @@ async function modifyBedStatus(req, res) {
     if (result.status) {
       ret = res.sendStatus(204);
       updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
-    } else if (result.value.code === "No record found.") {
-      res.json = {error: `Bed corresponding to bed_uuid ${bed_uuid} not found.`};
-      ret = res.sendStatus(400)
-    } else {
-      res.status(500);
-      ret = res.send({error: result.value})
-    }
+    } else if (result.value.code === "No record found.")
+      ret = res.status(400).send({error:  {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
+    else
+      ret = res.status(500).send({error: result.value})
   });
   return ret
 }
@@ -271,27 +244,21 @@ async function cleanlinessBed(req, res) {
   let to_clean = req.body.to_clean;
   let ret = null;
 
-  if (!bed_uuid) {
-    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
-    return res.sendStatus(400)
-  }
+  if (!bed_uuid)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The bed_uuid is required."}});
 
-  if (!validate(bed_uuid, 4)) {
-    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
-    return res.sendStatus(400)
-  }
+  if (!validate(bed_uuid, 4))
+    return res.status(400).send({error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}});
 
-  if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean)) {
-    res.json = {error: {name: "BadParameter", info: "to_clean should be a boolean"}};
-    return res.sendStatus(400)
-  }
+  if (typeof to_clean == "undefined" || !["false", "true", false, true, 0, 1].includes(to_clean))
+    return res.status(400).send({error: {name: "BadParameter", info: "to_clean should be a boolean"}});
 
-  if (to_clean === "false" || to_clean === 0) {
+  if (to_clean === "false" || to_clean === 0)
     to_clean = false
-  }
-  if (to_clean === "true" || to_clean === 1) {
+
+  if (to_clean === "true" || to_clean === 1)
     to_clean = true
-  }
+
 
   let oldBed = await getOldBedInfo(bed_uuid);
 
@@ -299,13 +266,10 @@ async function cleanlinessBed(req, res) {
     if (result.status) {
       ret = res.sendStatus(204);
       updateUtil(bed_uuid, oldBed, result.value.properties, req.user)
-    } else if (result.value.code === "No record found.") {
-      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}};
-      ret = res.sendStatus(404)
-    } else {
-      res.status(500);
-      ret = res.send({error: result.value})
-    }
+    } else if (result.value.code === "No record found.")
+      ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
+    else
+      ret = res.status(500).send({error: result.value})
   });
 
   return ret
@@ -328,33 +292,24 @@ async function modifyBedRoom(req, res) {
   let ret = null;
 
 
-  if (!bed_uuid) {
-    res.json = {error: {name: "MissingParameter", info: "The bed_uuid is required."}};
-    return res.sendStatus(400)
-  }
+  if (!bed_uuid)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The bed_uuid is required."}});
 
-  if (!validate(bed_id, 4)) {
-    res.json = {error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}};
-    return res.sendStatus(400)
-  }
+  if (!validate(bed_id, 4))
+    return res.status(400).send({error: {name: "BadParameter", info: "bed_uuid should be a valid uuid."}});
 
   service_id = parseInt(service_id, 10);
 
-  if (typeof service_id == "undefined" || isNaN(service_id)) {
-    res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
-    return res.sendStatus(400)
-  }
+  if (typeof service_id == "undefined" || isNaN(service_id))
+    return res.status(400).send({error: {name: "BadParameter", info: "service_id should be an integer."}});
 
   await graph.modifyBedRoom(bed_uuid, room_nb, service_id, (result) => {
-    if (result.status) {
+    if (result.status)
       ret = res.sendStatus(204)
-    } else if (result.value.code === "No record found.") {
-      res.json = {error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} or room ${room_nb} in service ${service_id} not found.`}};
-      ret = res.sendStatus(404)
-    } else {
-      res.status(500);
-      ret = res.send({error: result.value})
-    }
+    else if (result.value.code === "No record found.")
+      ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} or room ${room_nb} in service ${service_id} not found.`}});
+    else
+      ret = res.status(500).send({error: result.value});
   });
 
   return ret
@@ -385,42 +340,34 @@ async function createBed(req, res) {
     return res.sendStatus(400)
   }
 
-  if (typeof to_clean === "undefined" || ![false, true, "false", "true", 0, 1].includes(to_clean)) {
-    res.json = {error: {name: "BadParameter", info: "to_clean should be a boolean"}};
-    return res.sendStatus(400)
-  }
-  if (to_clean === "false" || to_clean === false || to_clean === 0) {
-    to_clean = false
-  }
-  if (to_clean === true || to_clean === "true" || to_clean === 1) {
-    to_clean = true
-  }
+  if (typeof to_clean === "undefined" || ![false, true, "false", "true", 0, 1].includes(to_clean))
+    return res.status(400).send({error: {name: "BadParameter", info: "to_clean should be a boolean"}});
 
-  if (!room_nb) {
-    res.json = {error: {name: "MissingParameter", info: "The room_nb is required"}};
-    return res.sendStatus(400);
-  }
-  if (!service_id) {
-    res.json = {error: {name: "MissingParameter", info: "The service_id is required."}};
-    return res.sendStatus(400)
-  }
+  if (to_clean === "false" || to_clean === false || to_clean === 0)
+    to_clean = false
+
+  if (to_clean === true || to_clean === "true" || to_clean === 1)
+    to_clean = true
+
+
+  if (!room_nb)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The room_nb is required"}});
+
+  if (!service_id)
+    return res.status(400).send({error: {name: "MissingParameter", info: "The service_id is required."}});
+
   service_id = parseInt(service_id, 10);
-  if (isNaN(service_id)) {
-    res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
-    return res.sendStatus(400)
-  }
+  if (isNaN(service_id))
+    return res.status(400).send({error: {name: "BadParameter", info: "service_id should be an integer."}});
 
   let ret = null;
   await graph.createBed(room_nb, service_id, status, to_clean, (result) => {
-    if (result.status) {
+    if (result.status)
       ret = res.sendStatus(201)
-    } else if (result.value.code === "No record found.") {
-      res.status(400);
-      ret = res.send({error: {name: "ItemNotFound", info: "Service id or room not found."}});
-    } else {
-      res.status(500);
-      ret = res.send({error: result.value})
-    }
+    else if (result.value.code === "No record found.")
+      ret = res.status(400).send({error: {name: "ItemNotFound", info: "Service id or room not found."}});
+    else
+      ret = res.status(500).send({error: result.value})
   });
   return ret;
 }
