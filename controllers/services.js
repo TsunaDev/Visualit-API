@@ -94,7 +94,7 @@ async function modifyService(req, res) {
 
 	await graph.modifyService(name, service_id, (result) => {
 		if (result.status)
-			res.status(204)
+			res.status(202);
 		else
 			res.status(404).send({error: {name: "ItemNotFound", info: `Service corresponding to service_id ${service_id} not found.`}});
 	});
