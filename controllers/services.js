@@ -53,23 +53,19 @@ async function deleteService(req, res) {
 	var service_id = req.params.service_id
 	let ret = null
 
-	if (!service_id) {
-		res.json = {error: {name: "MissingParameter", info: "The service_id is required for service deletion"}};
-		return res.sendStatus(400)
-	}
+	if (!service_id)
+		return res.status(400).send({error: {name: "MissingParameter", info: "The service_id is required for service deletion"}});
+
 	service_id = parseInt(service_id, 10);
-	if (isNaN(service_id)) {
-		res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
-		return res.sendStatus(400)
-	}
+	if (isNaN(service_id))
+		return res.status(400).send({error: {name: "BadParameter", info: "service_id should be an integer."}});
+
 	graph.deleteService(service_id, (result) => {
-		if (result.status == false) {
-       		res.json = {error: {name: "ItemNotFound", info:`Service corresponding to service_id ${service_id} not found.`}};
-      		ret = res.sendStatus(404);
-       	} else {
-       		ret = res.sendStatus(204);
-       	}
-	})
+		if (result.status == false)
+    	ret = res.status(404).send({error: {name: "ItemNotFound", info:`Service corresponding to service_id ${service_id} not found.`}});
+    else
+    	ret = res.sendStatus(204);
+	});
 
 	return ret
 }
@@ -86,28 +82,22 @@ async function modifyService(req, res) {
 	var service_id = req.params.service_id
 	var name = req.body.name
 
-	if (!service_id) {
-		res.json = {error: {name: "MissingParameter", info: "The service_id is required for service modification"}};
-		return res.sendStatus(404)
-	}
-	if (!name || name === "") {
-		res.json = {error: {name: "MissingParameter", info: "The name is required for service modification"}};
-		return res.sendStatus(400)
-	}
+	if (!service_id)
+		return res.status(404).send({error: {name: "MissingParameter", info: "The service_id is required for service modification"}});
+
+	if (!name || name === "")
+		return res.status(400).send({error: {name: "MissingParameter", info: "The name is required for service modification"}});
+
 	service_id = parseInt(service_id, 10);
-	if (isNaN(service_id)) {
-		res.json = {error: {name: "BadParameter", info: "service_id should be an integer."}};
-		return res.sendStatus(400)
-	}
+	if (isNaN(service_id))
+		return res.status(400).send({error: {name: "BadParameter", info: "service_id should be an integer."}});
 
 	await graph.modifyService(name, service_id, (result) => {
-		if (result.status) {
+		if (result.status)
 			res.status(204)
-		} else {
-			res.json = {error: {name: "ItemNotFound", info: `Service corresponding to service_id ${service_id} not found.`}};
-			res.status(404)
-		}
-	})
+		else
+			res.status(404).send({error: {name: "ItemNotFound", info: `Service corresponding to service_id ${service_id} not found.`}});
+	});
 	return res.end()
 }
 
@@ -115,27 +105,25 @@ async function modifyService(req, res) {
  * Crée un service.
  */
 async function createService(req, res) {
-  const check = await checkPermission("services", "create", req.user);
+	const check = await checkPermission("services", "create", req.user);
+	let ret = null;
   
   if (!check)
     return res.status(401).send({error: {name: "PermissionDenied"}});
 
 	var name = req.body.name
 
-	if (!name || name === "") {
-		res.json = {error: {name: "MissingParameter", info: "The name is required for service creation"}};
-		res.status(400)
-		return res.end()
-	}
+	if (!name || name === "")
+		return res.status(400).send({error: {name: "MissingParameter", info: "The name is required for service creation"}});
+
 	await graph.createService(name, (result) => {
-		if (result.status) {
-			res.status(201)
-		} else {
-			res.status(500)
-			res.json = result.value
-		}
-	})
- 	return res.end()
+		if (result.status)
+			ret = res.sendStatus(201);
+		else
+			res.status(500).send(result.value);
+	});
+
+ 	return ret;
  }
 
  module.exports = {
