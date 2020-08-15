@@ -224,7 +224,7 @@ async function modifyBedStatus(req, res) {
     return res.sendStatus(400)
   }
   
-  if (!status) {
+  if (typeof status !== 'undefined') {
     res.json = {error: {name: "MissingParameter", info: "The status is required."}};
     return res.sendStatus(400);
   }
