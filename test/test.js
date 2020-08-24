@@ -358,4 +358,76 @@ describe("Tests with token required", () => {
         });
     });
   });
+
+  describe("Add in waiting list", () => {
+    it("should return a 201 code", done => {
+      server
+        .post("/waiting/")
+        .send({"service_id": 1, "comment": "Entorse cheville"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(201)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  let ticketDate = null;
+  describe("Get waiting list", () => {
+    it("should return a 200 code", done => {
+      server
+        .get("/waiting/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(function(err, res) {
+          if (err) return done(err);
+          console.log(res.body);
+          ticketDate = res.body[0].date;
+          done();
+        });
+    });
+  });
+
+  describe("Get waiting ticket", () => {
+    it("should return a 200 code", done => {
+      server
+        .get("/waiting/")
+        .send(`date=${ticketDate}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Change waiting ticket service", () => {
+    it("should return a 202 code", done => {
+      server
+        .put("/waiting/")
+        .send({"date": ticketDate, "service_id": 2})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Delete waiting card", () => {
+    it("should return a 204 code", done => {
+      server
+        .delete("/waiting/")
+        .send(`date=${ticketDate}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(204)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
 });

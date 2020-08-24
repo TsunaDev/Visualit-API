@@ -54,6 +54,7 @@ const roomRouter = require('./routes/room');
 const etlRouter = require('./routes/etl');
 const feedbackRouter = require('./routes/feedback');
 const qrcodeRouter = require('./routes/qrcode');
+const waitingRouter = require('./routes/waiting');
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.use('/beds', bedRouter);
 app.use('/rooms', roomRouter);
 app.use('/services', serviceRouter);
 app.use('/feedback', feedbackRouter);
+app.use('/waiting', waitingRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
