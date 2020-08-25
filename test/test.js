@@ -332,7 +332,7 @@ describe("Tests with token required", () => {
     it("should return a 201 code", done => {
       server
         .post("/rooms/")
-        .send({"number": "24", "service_id": serviceID, "beds": 3})
+        .send({"room_nb": "24", "service_id": serviceID, "beds": 3})
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(201)
         .end(function(err, res) {
@@ -360,7 +360,7 @@ describe("Tests with token required", () => {
     it("should return a 200 code", done => {
       server
         .get("/rooms/")
-        .send({"number": "24", "service_id": serviceID})
+        .send({"room_nb": "24", "service_id": serviceID})
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(200)
         .end(err => {
