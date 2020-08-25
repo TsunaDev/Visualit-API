@@ -305,8 +305,7 @@ describe("Tests with token required", () => {
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(200)
         .end(function(err, res) {
-          console.log(res.body);
-          serviceID = res.body[0].id;
+          serviceID = res.body.services[0].id;
           if (err) return done(err);
           done();
         });
