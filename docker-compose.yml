@@ -33,6 +33,20 @@ services:
       - ./graph/plugins:/plugins
     environment:
       - NEO4J_AUTH=neo4j/test
+  db:
+      image: mariadb:latest
+      restart: always
+      volumes:
+        - mariadb-data:/var/lib/mysql
+      environment:
+        - MYSQL_DATABASE=visualit
+        - MYSQL_ROOT_PASSWORD=hA^PgC6r
+        - MYSQL_USER=visualit
+        - MYSQL_PASSWORD=password
+      ports:
+        - 3306:3306
+      expose:
+        - 3306
   logs:
       image: mongo:latest
       environment:
@@ -44,3 +58,6 @@ services:
       volumes:
         - ./logs/data:/data/db
         - ./logs/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+volumes:
+  mariadb-data:
