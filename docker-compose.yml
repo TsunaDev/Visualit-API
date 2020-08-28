@@ -39,10 +39,10 @@ services:
       volumes:
         - mariadb-data:/var/lib/mysql
       environment:
-        - MYSQL_DATABASE: 'visualit'
-        - MYSQL_ROOT_PASSWORD: 'hA^PgC6r'
-        - MYSQL_USER: 'visualit'
-        - MYSQL_PASSWORD: 'password'
+        - MYSQL_DATABASE=visualit
+        - MYSQL_ROOT_PASSWORD=hA^PgC6r
+        - MYSQL_USER=visualit
+        - MYSQL_PASSWORD=password
       ports:
         - 3306:3306
       expose:
