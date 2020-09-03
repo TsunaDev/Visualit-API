@@ -39,7 +39,7 @@ const passport = require('passport');
  *       - Chambres
  *     description: "Crée une chambre et ses lits.<br>Permission: rooms.create"
  *     parameters:
- *       - name: number
+ *       - name: room_nb
  *         description: Numéro de la chambre. Il peut contenir des lettres.
  *         in: formData
  *         type: string
@@ -182,7 +182,7 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
  *      - Chambres
  *    description: "Renvoie la liste des chambres si aucun paramètre n'est donné. Il est possible de renseigner une chambre et son service en paramètre pour la récupérer individuellement. Il est aussi possible de ne renseigné que le service pour récupérer toutes ses chambres. <br>Permission: rooms.get"
  *    parameters:
- *      - name: number
+ *      - name: room_nb
  *        description: Numéro de la chambre (service_id obligatoire si renseigné).
  *        in: formData
  *        required: false

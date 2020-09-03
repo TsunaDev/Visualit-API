@@ -2,6 +2,7 @@ const graph = require ('../controllers/graph');
 
 let supertest = require("supertest");
 let should = require("should");
+const { functionExpression } = require('babel-types');
 
 let server = supertest.agent("http://127.0.0.1:3000");
 let token = "";
@@ -268,6 +269,205 @@ describe("Tests with token required", () => {
     });
   });
 
+  
+  describe("Create a service", function() {
+    it("should return a 201 code", done => {
+      server
+        .post("/services/")
+        .send({"name": "TestService"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(201)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Create a service with no name", function() {
+    it("should return a 400 code", done => {
+      server
+        .post("/services/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(400)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  })
+
+  let serviceID = null;
+  describe("Get services list", function() {
+    it("should return a 200 code", done => {
+      server
+        .get("/services/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(function(err, res) {
+          serviceID = res.body.services[0].id;
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Update service", function() {
+    it("should return a 202 code", done => {
+      server
+        .put(`/services/${serviceID}`)
+        .send({"name": "TestRename"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(function(err, res) {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+
+
+  describe("Create a room", function() {
+    it("should return a 201 code", done => {
+      server
+        .post("/rooms/")
+        .send({"room_nb": "24", "service_id": serviceID, "beds": 3})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(201)
+        .end(function(err, res) {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Get room list", function() {
+    it("should return a 200 code", done => {
+      server
+        .get("/rooms/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(function(err, res) {
+          res.body.length.should.equal(1);
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Get a room", function() {
+    it("should return a 200 code", done => {
+      server
+        .get("/rooms/")
+        .send({"room_nb": "24", "service_id": serviceID})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Update a room", function() {
+    it("should return a 202 code", done => {
+      server
+        .put("/rooms/number")
+        .send({"room_nb": "24", "new_room_nb": "24", "service_id": serviceID})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Create a bed", function() {
+    it("should return a 201 code", done => {
+      server
+        .post("/beds/")
+        .send({"room_nb": "24", "service_id": serviceID})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(201)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  let bed = null;
+  describe("Get beds", function() {
+    it("should return 200 code", done => {
+      server
+        .get("/beds/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(function(err, res) {
+          bed = res.body[0].uuid;
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Update bed", function() {
+    it("should return a 202 code", done => {
+      server
+        .put(`/beds/${bed}/clean`)
+        .send({"to_clean": true})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Delete bed", function() {
+    it("should return a 204 code", done => {
+      server
+        .delete(`/beds/${bed}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(204)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Delete room", function() {
+    it("should return a 204 code", done => {
+      server
+        .delete("/rooms/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({"room_nb": "24", "service_id": serviceID})
+        .expect(204)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Delete service", function() {
+    it("should return a 204 code", done => {
+      server
+        .delete(`/services/${serviceID}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(204)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+      });
+  });
+
+
   describe("Get a role with name", function() {
     it("should return a role", function(done) {
       server
@@ -282,8 +482,8 @@ describe("Tests with token required", () => {
         res.body.index.should.equal(1)
         done();
       });
-    })
-  })
+    });
+  });
   
   describe("Get a role with index", function() {
     it("should return a role", function(done) {
