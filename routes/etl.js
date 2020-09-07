@@ -5,7 +5,7 @@ const passport = require('passport');
 
 /**
  * @swagger
- * /etl/import:
+ * /import/rooms:
  *  post:
  *    tags:
  *      - Divers
@@ -22,6 +22,26 @@ const passport = require('passport');
  *      401:
  *        $ref: '#/responses/401Unauthorized'
  */
-router.post('/', passport.authenticate('jwt', {session: false}), controller.import);
+router.post('/rooms', passport.authenticate('jwt', {session: false}), controller.rooms);
+
+/**
+ * /import/users:
+ *  post:
+ *    tags:
+ *      - Divers
+ *    description: "Récupère un fichier CSV et importe les utilisateurs qu'il contient.<br>Permission: etl.import"
+ *    parameters:
+ *      - name: data
+ *        description: Fichier CSV avec pour entête "user, password, role", "user" représentant le nom d'utilisateur, "password" le mot de passe et "role" l'index du rôle.
+ *        in: formData
+ *        required: true
+ *        type: file
+ *    responses:
+ *      200:
+ *        description: L'import a été effectué.
+ *      401:
+ *        $ref: '#/responses/401Unauthorized'
+ */
+router.post('/users', passport.authenticate('jwt', {session: false}), controller.users);
 
 module.exports = router;

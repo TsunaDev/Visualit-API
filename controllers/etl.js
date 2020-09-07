@@ -87,11 +87,22 @@ async function createBeds(data, graphServices) {
   }
 }
 
+/**
+ * Crée les utilisateurs présents dans le CSV.
+ * @param {json} data Données extraites du CSV.
+ */
+async function createUsers(data) {
+  for (i = 0; i < data.length; i++) {
+    await graph.createUser(data[i].username, data[i].password, data[i].role, () => {});
+  }
+}
+
+
 module.exports = {
   /**
-   * Lance l'import des données en utilisant le CSV donné par la requête.
+   * Lance l'import des chambres en utilisant le CSV donné par la requête.
    */
-  import: async (req, res) => {
+  rooms: async (req, res) => {
     const check = await checkPermission("etl", "import", req.user);
     
     if (!check)
@@ -115,6 +126,28 @@ module.exports = {
     });
 
 
+    res.sendStatus(200);
+  },
+
+  users: async(req, res) => {
+    const check = await checkPermission("etl", "users", req.user);
+
+    if (!check)
+      return res.status(401).send({error: {name: "PermissionDenied"}});
+
+    const file = req.files.data;
+    await file.mv('./uploads/' + file.name, function(err, result) {
+      if (err)
+        throw err;
+    });
+
+    const path = "./uploads/" + file.name;
+    await fs.stat(path, async function(err, stats) {
+      if (stats.isFile()) {
+        const data = await csvtojson().fromFile(path);
+        await createUsers(data);
+      }
+    });
     res.sendStatus(200);
   }
 };
