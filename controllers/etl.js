@@ -103,7 +103,7 @@ module.exports = {
    * Lance l'import des chambres en utilisant le CSV donné par la requête.
    */
   rooms: async (req, res) => {
-    const check = await checkPermission("etl", "import", req.user);
+    const check = await checkPermission("etl", "rooms", req.user);
     
     if (!check)
       return res.status(401).send({error: {name: "PermissionDenied"}});
