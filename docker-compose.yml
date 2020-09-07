@@ -21,7 +21,10 @@ services:
       - 3000:3000
     environment:
       - DB_URI="bolt://graph:7687"
-      - LOGS_URI=mongodb://visualit:password@logs:27017/visualit
+      - LOGS_URI=localhost
+      - LOGS_DB=visualit
+      - LOGS_PASSWORD=password
+      - LOGS_USERNAME=visualit
   graph:
     image: neo4j:3.5
     ports:

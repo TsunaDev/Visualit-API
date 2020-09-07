@@ -1,27 +1,67 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Sequelize, DataTypes, Model } = require('sequelize');
+const sequelize = new Sequelize(process.env.LOGS_DB, process.env.LOGS_USERNAME, process.env.LOGS_PASSWORD, {
+  host: process.env.LOGS_URI,
+  dialect: 'mariadb'
+});
 
+sequelize.authenticate().then(r => {
+  console.log('Connection has been established successfully.');
+}).catch(e => {
+  console.error('Unable to connect to the database:', e)
+});
 /**
  * Schéma MongoDB pour le système de logs.
  */
-const bedEventSchema = new Schema({
-  bed_uuid: String,
-  room_nb: String,
-  service_id: Number,
-  username: String,
-  user_role: String,
-  state: {
-    old: Number,
-    new: Number
+class BedStateEvent extends Model {}
+
+BedStateEvent.init({
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
   },
-  to_clean: {
-    old: Boolean,
-    new: Boolean
+  bedID: {
+    type: DataTypes.UUID,
+    allowNull: false
   },
-  date: { type: Date, default: Date.now },
+  serviceID: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  userRole: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  oldState: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  newState: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  dateBegin: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    allowNull: false
+  },
+  dateEnd: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+}, {
+  sequelize: sequelize,
+  timestamps: false
 });
 
-const BedEvent = mongoose.model('bedEvent', bedEventSchema);
+(async () => {
+  await sequelize.sync();
+})();
+
 const BedState = {
   free: 0,
   busy: 2,
@@ -31,5 +71,5 @@ const BedState = {
 
 module.exports = {
   BedState,
-  BedEvent
+  BedStateEvent
 };
