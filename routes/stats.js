@@ -3,7 +3,7 @@ const router = express.Router();
 const logs = require('../controllers/logs');
 const passport = require('passport');
 
-router.get('/patients', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/patients', passport.authenticate('jwt', {session: false}), (req, res) => {
   const serviceId = req.query.service_id;
   const dateBegin = req.query.date_begin;
   const dateEnd = req.query.date_end;
@@ -15,7 +15,7 @@ router.get('/patients', passport.authenticate('jwt', {session: false}), async (r
   });
 });
 
-router.get('/stay/avg', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/stay/avg', passport.authenticate('jwt', {session: false}), (req, res) => {
   const serviceId = req.query.service_id;
   const dateBegin = req.query.date_begin;
   const dateEnd = req.query.date_end;
@@ -27,7 +27,7 @@ router.get('/stay/avg', passport.authenticate('jwt', {session: false}), async (r
   });
 });
 
-router.get('/stay/avg/day', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/stay/avg/day', passport.authenticate('jwt', {session: false}), (req, res) => {
   const serviceId = req.query.service_id;
   const dateBegin = req.query.date_begin;
   const dateEnd = req.query.date_end;
@@ -39,12 +39,24 @@ router.get('/stay/avg/day', passport.authenticate('jwt', {session: false}), asyn
   });
 });
 
-router.get('/stay/day', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/stay/day', passport.authenticate('jwt', {session: false}), (req, res) => {
   const serviceId = req.query.service_id;
   const dateBegin = req.query.date_begin;
   const dateEnd = req.query.date_end;
 
   logs.getDaysIn(serviceId, dateBegin, dateEnd).then(result => {
+    res.status(200).send(result);
+  }).catch(_ => {
+    res.sendStatus(500);
+  });
+});
+
+router.get('/states', passport.authenticate('jwt', {session: false}), (req, res) => {
+  const serviceId = req.query.service_id;
+  const dateBegin = req.query.date_begin;
+  const dateEnd = req.query.date_end;
+
+  logs.getStateDuration(serviceId, dateBegin, dateEnd).then(result => {
     res.status(200).send(result);
   }).catch(_ => {
     res.sendStatus(500);

@@ -6,11 +6,9 @@ const genFilter = (serviceId, dateBegin, dateEnd) => {
   let filter = {};
   if (serviceId && Array.isArray(serviceId)) filter.serviceID = {[Op.in]: serviceId};
   else if (serviceId) filter.serviceID = {[Op.eq]: serviceId};
-  if (dateBegin || dateEnd) filter.date = {};
   if (dateBegin) filter.dateBegin = {[Op.gte]: dateBegin};
   if (dateEnd) {
-    filter.dateBegin = {[Op.lte]: dateEnd};
-    filter.dateEnd = {[Op.lte]: dateEnd};
+    filter.dateEnd = {[Op.lt]: Sequelize.literal(`'${dateEnd}' + INTERVAL 1 DAY`)};
   }
   return filter;
 };
@@ -72,9 +70,9 @@ module.exports = {
     filter.newState = {[Op.eq]: 2}
 
     return BedStateEvent.findAll({
-      attributes: [[Sequelize.fn('MIN', Sequelize.col('dateBegin')), 'dateBegin'],
-        [Sequelize.fn('MAX', Sequelize.col('dateEnd')), 'dateEnd'],
-        'serviceID', [Sequelize.fn('COUNT', Sequelize.col('serviceID')), 'count']],
+      attributes: [[Sequelize.fn('MIN', Sequelize.col('dateBegin')), 'date_begin'],
+        [Sequelize.fn('MAX', Sequelize.fn('IFNULL', Sequelize.col('dateEnd'), 'NOW()-1')), 'date_end'],
+        ['serviceID', 'service_id'], [Sequelize.fn('COUNT', Sequelize.col('serviceID')), 'count']],
       group: "serviceID",
       where: filter
     });
@@ -85,31 +83,31 @@ module.exports = {
     filter.newState = {[Op.eq]: 2}
 
     return BedStateEvent.findAll({
-      attributes: ['serviceID', [Sequelize.fn('AVG', Sequelize.literal("`dateEnd` - `dateBegin`")), 'duration']],
+      attributes: [['serviceID', 'service_id'], [Sequelize.fn('AVG', Sequelize.literal("`dateEnd` - `dateBegin`")), 'duration']],
       group: "serviceID",
       where: filter
     });
   },
 
-  getStayAvgDay: async (serviceId, dateBegin, dateEnd) => {
+  getStayAvgDay: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
     filter.newState = {[Op.eq]: 2}
 
     return BedStateEvent.findAll({
-      attributes: ['serviceID', [Sequelize.cast(Sequelize.col("dateBegin"), "DATE"), 'date'],
+      attributes: [['serviceID', 'service_id'], [Sequelize.cast(Sequelize.col("dateBegin"), "DATE"), 'date'],
         [Sequelize.fn('AVG', Sequelize.literal("`dateEnd` - `dateBegin`")), 'duration']],
       group: ['date', 'serviceID'],
       where: filter
     });
   },
 
-  getDaysIn: async (serviceId, dateBegin, dateEnd) => {
+  getDaysIn: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
     filter.newState = {[Op.eq]: 2}
 
 
     return BedStateEvent.findAll({
-      attributes: ['serviceID',
+      attributes: [['serviceID', 'service_id'],
         [Sequelize.fn('DATEDIFF',
           Sequelize.fn('IFNULL', Sequelize.col('dateEnd'), 'NOW()'),
           Sequelize.col('dateBegin')), 'duration'],
@@ -117,5 +115,15 @@ module.exports = {
       group: ['serviceID', 'duration'],
       where: filter,
     });
-  }
+  },
+  getStateDuration: (serviceId, dateBegin, dateEnd) => {
+    let filter = genFilter(serviceId, dateBegin, dateEnd);
+
+    return BedStateEvent.findAll({
+      attributes: [['serviceID', 'service_id'], [Sequelize.col('newState'), 'state'],
+        [Sequelize.fn('SUM', Sequelize.literal("`dateEnd` - `dateBegin`")), 'duration']],
+      group: ["serviceID", 'state'],
+      where: filter
+    });
+  },
 };
