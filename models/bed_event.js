@@ -1,7 +1,8 @@
 const { Sequelize, DataTypes, Model } = require('sequelize');
 const sequelize = new Sequelize(process.env.LOGS_DB, process.env.LOGS_USERNAME, process.env.LOGS_PASSWORD, {
   host: process.env.LOGS_URI,
-  dialect: 'mariadb'
+  dialect: 'mariadb',
+  logging: false
 });
 
 sequelize.authenticate().then(r => {
