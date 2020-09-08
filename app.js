@@ -89,7 +89,7 @@ app.use('/user', userRouter);
 app.use('/qr', qrcodeRouter);
 app.use('/qrcodes', express.static('qrcodes'));
 app.use('/roles', rolesRouter);
-app.use('/etl', etlRouter);
+app.use('/import', etlRouter);
 app.use('/beds', bedRouter);
 app.use('/rooms', roomRouter);
 app.use('/services', serviceRouter);

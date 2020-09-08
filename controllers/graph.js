@@ -94,6 +94,7 @@ module.exports = {
    * @param {function} callback Fonction de callback qui sera appelée lorsque la requête sera achevée. Le callback recevra en paramètre un JSON contenant la réponse de la requête.
    */
   createUser: (username, password, role, callback) => {
+    console.log('MATCH (r:Role) WHERE r.index = "' + role + '" CREATE (u:User {name: "' + username + '", password: "' + password + '"})-[:ROLE]->(r) RETURN u');
     return GraphCall('MATCH (r:Role) WHERE r.index = "' + role + '" CREATE (u:User {name: "' + username + '", password: "' + password + '"})-[:ROLE]->(r) RETURN u', callback);
   },
 
@@ -121,7 +122,6 @@ module.exports = {
       if (res.records && res.records.length) {
         res.records[0].get(0).forEach((record, index) => {
           let user = record;
-          user.role = user.role.low;
           delete user.password;
 
           entries.push(user);
