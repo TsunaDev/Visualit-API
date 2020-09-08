@@ -47,9 +47,9 @@ services:
       - MYSQL_USER=visualit
       - MYSQL_PASSWORD=password
     ports:
-        - 3306:3306
-      expose:
-        - 3306
+      - 3306:3306
+    expose:
+      - 3306
 
 volumes:
   mariadb-data:
