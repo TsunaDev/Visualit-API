@@ -85,7 +85,7 @@ module.exports = {
     filter.newState = {[Op.eq]: 2}
 
     return BedStateEvent.findAll({
-      attributes: [[Sequelize.fn('AVG', Sequelize.literal("`dateEnd` - `dateBegin`")), 'duration']],
+      attributes: ['serviceID', [Sequelize.fn('AVG', Sequelize.literal("`dateEnd` - `dateBegin`")), 'duration']],
       group: "serviceID",
       where: filter
     });
