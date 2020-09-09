@@ -21,7 +21,10 @@ services:
       - 3000:3000
     environment:
       - DB_URI="bolt://graph:7687"
-      - LOGS_URI=mongodb://visualit:password@logs:27017/visualit
+      - LOGS_URI=logs
+      - LOGS_DB=visualit
+      - LOGS_PASSWORD=password
+      - LOGS_USERNAME=visualit
   graph:
     image: neo4j:3.5
     ports:
@@ -33,31 +36,20 @@ services:
       - ./graph/plugins:/plugins
     environment:
       - NEO4J_AUTH=neo4j/test
-  db:
-      image: mariadb:latest
-      restart: always
-      volumes:
-        - mariadb-data:/var/lib/mysql
-      environment:
-        - MYSQL_DATABASE=visualit
-        - MYSQL_ROOT_PASSWORD=hA^PgC6r
-        - MYSQL_USER=visualit
-        - MYSQL_PASSWORD=password
-      ports:
-        - 3306:3306
-      expose:
-        - 3306
   logs:
-      image: mongo:latest
-      environment:
-        - MONGO_INITDB_DATABASE=visualit
-        - MONGO_INITDB_ROOT_USERNAME=visualit
-        - MONGO_INITDB_ROOT_PASSWORD=password
-      ports:
-        - 27017:27017
-      volumes:
-        - ./logs/data:/data/db
-        - ./logs/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    image: mariadb:latest
+    restart: always
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=visualit
+      - MYSQL_ROOT_PASSWORD=hA^PgC6r
+      - MYSQL_USER=visualit
+      - MYSQL_PASSWORD=password
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
 
 volumes:
   mariadb-data:
