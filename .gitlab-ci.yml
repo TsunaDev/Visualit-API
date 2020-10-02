@@ -35,4 +35,4 @@ auto_increment:
     - apk add --update curl jq
   script:
     - "chmod +x versioning/auto_increment.sh"
-    - "./versioning/auto_increment.sh ${API_ACCESS_TOKEN} versioning/VERSION_FILE ${CI_PROJECT_URL} ${CI_PROJECT_ID}"
+    - "./versioning/auto_increment.sh versioning/VERSION_FILE ${CI_PROJECT_URL} ${API_ACCESS_TOKEN} ${CI_PROJECT_ID}"
