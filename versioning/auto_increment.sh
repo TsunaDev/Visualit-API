@@ -3,7 +3,7 @@ CI_PROJECT_URL=$2
 API_ACCESS_TOKEN=$3
 CI_PROJECT_ID=$4
 
-VERSION=$(grep "^[^# ]" ${VERSION_FILE})
+VERSION=$(grep "^[^# ]" ${VERSION_FILE} | xargs)
 echo $1 $2 $3 $4
 echo "==VERSION=="
 echo ${VERSION}
