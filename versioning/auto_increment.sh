@@ -4,7 +4,9 @@ CI_PROJECT_URL=$3
 CI_PROJECT_ID=$4
 
 VERSION=$(grep "^[^# ]" ${VERSION_FILE})
-
+echo ${VERSION_FILE}
+echo "==VERSION=="
+echo ${VERSION}
 if [ -z "${VERSION}" ]; then
   echo "No version type given, skipping incrementation"
   exit 1
