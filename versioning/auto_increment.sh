@@ -4,12 +4,10 @@ API_ACCESS_TOKEN=$3
 CI_PROJECT_ID=$4
 
 VERSION=$(grep "^[^# ]" ${VERSION_FILE} | xargs)
-echo $1 $2 $3 $4
-echo "==VERSION=="
-echo ${VERSION}
+
 if [ -z "${VERSION}" ]; then
   echo "No version type given, skipping incrementation"
-  exit 1
+  exit 0
 elif [ "${VERSION}" != "MAJOR" ] && [ "${VERSION}" != "MINOR" ] && [ "${VERSION}" != "HOTFIX" ]; then
   echo "Error: Unknown version type"
   exit 2
