@@ -7,6 +7,7 @@ variables:
 stages:
   - build
   - test
+  - auto_increment
 
 cache:
   paths:
@@ -27,3 +28,11 @@ testing_testing:
     - npm start &
     - sleep 2
     - npm test
+
+auto_increment:
+  stage: auto_increment
+  before_script:
+    - apk add --update curl jq
+  script:
+    - "chmod +x versioning/auto_increment"
+    - "./versioning/auto_increment.sh ${API_ACCESS_TOKEN} versioning/VERSION_FILE ${CI_PROJECT_URL} ${CI_PROJECT_ID}"
