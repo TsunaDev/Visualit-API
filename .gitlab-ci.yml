@@ -31,6 +31,8 @@ testing_testing:
 
 auto_increment:
   stage: auto_increment
+  only:
+    - master
   before_script:
     - apk add --update curl jq
   script:
