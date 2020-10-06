@@ -8,6 +8,7 @@ stages:
   - build
   - test
   - auto_increment
+  - deploy
 
 cache:
   paths:
@@ -29,12 +30,27 @@ testing_testing:
     - sleep 2
     - npm test
 
+
 auto_increment:
   stage: auto_increment
   only:
-    - master
+    refs:
+      - master
   before_script:
     - apk add --update curl jq
   script:
     - "chmod +x versioning/auto_increment.sh"
     - "./versioning/auto_increment.sh versioning/VERSION_FILE ${CI_PROJECT_URL} ${API_ACCESS_TOKEN} ${CI_PROJECT_ID}"
+
+deploy:
+  image: docker:19.03.12
+  stage: deploy
+  only:
+    refs:
+      - master
+  services:
+    - docker:19.03.12-dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY/visualitgroup/api/server:latest .
+    - docker push $CI_REGISTRY/visualitgroup/api/server:latest
