@@ -1,0 +1,7 @@
+## Chaque version sera présentée de la façon MAJOR.MINOR.HOTFIX
+## Décommentez la ligne qui correspond au type de version qui correspond
+## La version sera alors mise à jour sur Gitlab à votre prochain push
+
+#MAJOR
+#MINOR
+HOTFIX
