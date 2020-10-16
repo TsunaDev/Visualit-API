@@ -94,6 +94,14 @@ module.exports = {
 
     let args = JSON.parse(JSON.stringify(req.body));
     delete args.username
+
+    await graph.getUser(req.body["username"], function(result) {
+      if (result.value.length === 0)
+        ret = res.status(404).send({error: {name: "ItemNotFound", info: 'User "' + req.body["username"] + '" cannot be found.'}});
+    });
+
+    if (ret)
+      return ret;
     await graph.updateUser(req.body["username"], args, function(result) {
       if (result.status)
         ret = res.status(202).send(result.value.properties);

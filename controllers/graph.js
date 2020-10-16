@@ -534,6 +534,10 @@ module.exports = {
     return GraphCall('CREATE (s:Service {name: "' + name + '"}) RETURN s', callback);
   },
 
+  getService: (name, callback) => {
+    return GraphCall('MATCH (s:Service {name: "' + name + '"}) RETURN s', callback);
+  },
+
   /**
    * Met à jour un service.
    * @param {string} name Nouveau nom pour le service.

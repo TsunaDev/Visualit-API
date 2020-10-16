@@ -83,7 +83,7 @@ async function modifyService(req, res) {
 	var name = req.body.name
 
 	if (!service_id)
-		return res.status(404).send({error: {name: "MissingParameter", info: "The service_id is required for service modification"}});
+		return res.status(400).send({error: {name: "MissingParameter", info: "The service_id is required for service modification"}});
 
 	if (!name || name === "")
 		return res.status(400).send({error: {name: "MissingParameter", info: "The name is required for service modification"}});
@@ -108,14 +108,21 @@ async function createService(req, res) {
 	const check = await checkPermission("services", "create", req.user);
 	let ret = null;
   
-  if (!check)
-    return res.status(401).send({error: {name: "PermissionDenied"}});
+  if (!check) {
+		return res.status(401).send({error: {name: "PermissionDenied"}});
+	}
 
 	var name = req.body.name
 
 	if (!name || name === "")
 		return res.status(400).send({error: {name: "MissingParameter", info: "The name is required for service creation"}});
+	await graph.getService(name, (result) => {
+		if (result.status)
+			ret = res.status(400).send({error: {name: "AlreadyExisting", info: "Service \"" + name + "\" already existing"}});
+	});
 
+	if (ret)
+		return ret;
 	await graph.createService(name, (result) => {
 		if (result.status)
 			ret = res.sendStatus(201);

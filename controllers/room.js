@@ -198,8 +198,8 @@ module.exports = {
     let ret = null;
     const room_nb = req.query.room_nb;
     let service = req.query.service_id;
-  
     if (!room_nb) {
+
       if (service) {
         service = parseInt(service, 10);
         if (isNaN(service))
@@ -212,10 +212,9 @@ module.exports = {
         else
           ret = res.status(500).send({error: result.value});
       });
-    } else {   
+    } else {
       if (!service)
         return res.status(400).send({error: {name: "MissingParameter"}});
-      
       service = parseInt(service, 10);
       if (isNaN(service))
         return res.status(400).send({error: {name: "BadParameter", info: "service_id has to be an integer."}});
