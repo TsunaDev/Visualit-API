@@ -177,11 +177,16 @@ async function deleteBed(req, res) {
   if (!validate(bed_uuid, 4))
     return res.status(400).send({error: {name: "BadParameter", info: "bed_uuid should be a valide uuid."}});
 
+  await graph.getBed(bed_uuid, (result) => {
+    if (result.value.length === 0)
+      ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
+  });
+
+  if (ret) return ret;
+
   await graph.deleteBed(bed_uuid, (result) => {
     if (result.status)
       ret = res.sendStatus(204);
-    else if (result.value.code === "No record found.")
-      ret = res.status(404).send({error: {name: "ItemNotFound", info: `Bed corresponding to bed_uuid ${bed_uuid} not found.`}});
     else
       ret = res.status(500).send({error: result.value})
   });
@@ -335,10 +340,8 @@ async function createBed(req, res) {
     status = "0";
   if (!to_clean)
     to_clean = false;
-  if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status)) {
-    res.json = {error: {name: "BadParameter", info: `Invalid '${status}' status.`}};
-    return res.sendStatus(400)
-  }
+  if (![0, 1, 2].includes(status) && !["0", "1", "2"].includes(status))
+    return res.status(400).send({error: {name: "BadParameter", info: `Invalid '${status}' status.`}})
 
   if (typeof to_clean === "undefined" || ![false, true, "false", "true", 0, 1].includes(to_clean))
     return res.status(400).send({error: {name: "BadParameter", info: "to_clean should be a boolean"}});

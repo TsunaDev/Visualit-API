@@ -135,10 +135,9 @@ module.exports = {
     if (!check)
       return res.status(401).send({error: {name: "PermissionDenied"}});
 
-    const date = req.body.date;
-    const service = parseInt(req.body.service_id, 10);
+    const date = req.query.date;
+    let service = req.query.service_id;
   
-    
     if (date) {
       let item = findInList(date);
       if (!item)
@@ -146,9 +145,10 @@ module.exports = {
       else
         return res.status(200).send(item);
     } else if (service) {
-      if (isNaN(service))
-      return res.status(400).send({error: {name: "BadParameter", info: "service_id should be a number"}});
-      else
+      service = parseInt(service, 10);
+      if (isNaN(service)) {
+        return res.status(400).send({error: {name: "BadParameter", info: "service_id should be a number"}});
+      } else
         return res.status(200).send(getTicketsOfService(service))
     } else
       return res.status(200).send(waitingList);
