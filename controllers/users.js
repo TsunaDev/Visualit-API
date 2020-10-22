@@ -35,7 +35,7 @@ module.exports = {
   /**
    * Crée un utilisateur.
    */
-  register: async (req, res) => {
+  create: async (req, res) => {
     let ret = null;
     const check = await checkPermission("user", "create", req);
 
@@ -61,7 +61,7 @@ module.exports = {
   /**
    * Récupère les informations d'un utilisateur.
    */
-  fetchInfos: async (req, res) => {
+  get: async (req, res) => {
     let ret = null;
 
     const check = await checkPermission("user", "get", req);
@@ -78,6 +78,31 @@ module.exports = {
         ret = res.status(404).send({error: result.value});
     });
 
+    return ret;
+  },
+
+    /**
+   * Récupère tous les utilisateurs existants sur le graphe.
+   */
+  getAll: async (req, res) => {
+    let ret = null;
+    let check = false;
+
+    await graph.getUserPermissions(req.user.username, (result) => {
+      if (result.value.includes("user.all") || result.value.includes("user.get_all"))
+        check = true;
+    })
+  
+
+    if (!check)
+      ret = res.status(401).send({error: {name: "PermissionDenied"}});
+    
+    await graph.getAllUsers(function(result) {
+      if (result.status)
+        ret = res.status(200).send(result.value);
+      else
+        ret = res.status(404).send({error: result.value});
+    });
     return ret;
   },
 
@@ -131,31 +156,6 @@ module.exports = {
         ret = res.status(500).send({error: result.value});
     });
     
-    return ret;
-  },
-
-  /**
-   * Récupère tous les utilisateurs existants sur le graphe.
-   */
-  getAllUsers: async (req, res) => {
-    let ret = null;
-    let check = false;
-
-    await graph.getUserPermissions(req.user.username, (result) => {
-      if (result.value.includes("user.all") || result.value.includes("user.get_all"))
-        check = true;
-    })
-  
-
-    if (!check)
-      ret = res.status(401).send({error: {name: "PermissionDenied"}});
-    
-    await graph.getAllUsers(function(result) {
-      if (result.status)
-        ret = res.status(200).send(result.value);
-      else
-        ret = res.status(404).send({error: result.value});
-    });
     return ret;
   }
 };

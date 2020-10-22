@@ -1,22 +1,7 @@
 const graph = require ('./graph');
+const {checkPermission} = require('./common');
 
-/**
- * Vérifie que l'utilisateur possède la permission d'accéder à une route donnée.
- * @param {string} resource La ressource liée à la route (ex: beds) 
- * @param {string} route La route elle même (ex: update)
- * @param {object} user Les données utilisateur reçus dans la requête.
- * @returns {boolean} True si l'utilisateur possède la permission. False dans le cas contraire.
- */
-async function checkPermission(resource, route, user) {
-  let ret = false;
 
-  await graph.getUserPermissions(user.username, (result) => {
-    if (result.value.includes(resource + ".all") || result.value.includes(resource + "." + route))
-      ret = true;
-  })
-
-  return ret;
-}
 
 module.exports = {
   /**
@@ -49,8 +34,8 @@ module.exports = {
    * Récupère un rôle en fonction de son nom ou de son indexe.
    */
   get: async(req, res) => {
-    const index = req.body.index
-    const role = req.body.role
+    const index = req.query.index
+    const role = req.query.role
     const check = await checkPermission("roles", "get", req.user);
 
     if (!check)
@@ -91,7 +76,7 @@ module.exports = {
   /**
    * Récupère tous les rôles présents sur le graphe.
    */
-  getAllRoles: async(req, res) => {
+  getAll: async(req, res) => {
     const check = await checkPermission("roles", "get", req.user);
 
     if (!check)

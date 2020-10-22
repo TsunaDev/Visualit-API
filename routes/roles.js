@@ -76,12 +76,12 @@ router.post('/', passport.authenticate('jwt', {session: false}), controller.crea
  *    parameters:
  *      - name: role
  *        description: Nom du rôle recherché.
- *        in: formData
+ *        in: query
  *        required: false
  *        type: string
  *      - name: index
  *        description: Indexe du rôle recherché.
- *        in: formData
+ *        in: query
  *        required: false
  *        type: number
  *    responses:
@@ -123,7 +123,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), controller.get);
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAllRoles);
+router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAll);
 
 /**
  * @swagger

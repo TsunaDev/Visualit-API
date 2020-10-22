@@ -151,7 +151,7 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
  *    parameters:
  *      - name: service_id
  *        description: Préciser un service grâce à son ID.
- *        in: formData
+ *        in: query
  *        required: false
  *        type: number
  *    responses:
