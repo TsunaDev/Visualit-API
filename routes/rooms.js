@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/room');
+const controller = require('../controllers/rooms');
 const passport = require('passport');
 
 /**
@@ -103,7 +103,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), controller.crea
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.put('/number', passport.authenticate('jwt', {session: false}), controller.updateRoomNumber);
+router.put('/number', passport.authenticate('jwt', {session: false}), controller.updateNumber);
 
 /**
  * @swagger
@@ -140,7 +140,7 @@ router.put('/number', passport.authenticate('jwt', {session: false}), controller
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.put('/service', passport.authenticate('jwt', {session: false}), controller.updateRoomService);
+router.put('/service', passport.authenticate('jwt', {session: false}), controller.updateService);
 
 /**
  * @swagger
@@ -172,7 +172,7 @@ router.put('/service', passport.authenticate('jwt', {session: false}), controlle
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.delete('/', passport.authenticate('jwt', {session: false}), controller.deleteRoom);
+router.delete('/', passport.authenticate('jwt', {session: false}), controller.delete);
 
 /**
  * @swagger
@@ -184,12 +184,12 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
  *    parameters:
  *      - name: room_nb
  *        description: Numéro de la chambre (service_id obligatoire si renseigné).
- *        in: formData
+ *        in: query
  *        required: false
  *        type: string
  *      - name: service_id
  *        description: ID du service des chambres.
- *        in: formData
+ *        in: query
  *        required: false
  *        type: number
  *    responses:
@@ -207,7 +207,7 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/', passport.authenticate('jwt', {session: false}), controller.getRoom);
+router.get('/', passport.authenticate('jwt', {session: false}), controller.get);
 
 /**
  * @swagger
@@ -219,7 +219,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), controller.getRo
  *    parameters:
  *      - name: service_id
  *        description: (filtre) ID du service pour lequel récupérer les chambres.
- *        in: formData
+ *        in: query
  *        required: false
  *        type: number
  *    responses:
@@ -238,7 +238,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), controller.getRo
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAllRooms);
+router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAll);
 
 
 module.exports = router;

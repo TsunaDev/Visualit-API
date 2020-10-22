@@ -33,7 +33,7 @@ const passport = require('passport');
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/', passport.authenticate('jwt', {session: false}), controller.listServices);
+router.get('/', passport.authenticate('jwt', {session: false}), controller.list);
 
 /**
  * @swagger
@@ -60,7 +60,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), controller.listS
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.post('/', passport.authenticate('jwt', {session: false}), controller.createService);
+router.post('/', passport.authenticate('jwt', {session: false}), controller.create);
 
 /**
  * @swagger
@@ -87,7 +87,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), controller.crea
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.delete('/:service_id', passport.authenticate('jwt', {session: false}), controller.deleteService);
+router.delete('/:service_id', passport.authenticate('jwt', {session: false}), controller.delete);
 
 /**
  * @swagger
@@ -119,6 +119,6 @@ router.delete('/:service_id', passport.authenticate('jwt', {session: false}), co
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.put('/:service_id', passport.authenticate('jwt', {session: false}), controller.modifyService);
+router.put('/:service_id', passport.authenticate('jwt', {session: false}), controller.update);
 
 module.exports = router;

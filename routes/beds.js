@@ -72,7 +72,7 @@ const passport = require('passport');
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/', passport.authenticate('jwt', {session: false}), controller.listBeds);
+router.get('/', passport.authenticate('jwt', {session: false}), controller.list);
 
 /**
  * @swagger
@@ -114,7 +114,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), controller.listB
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.post('/', passport.authenticate('jwt', {session: false}), controller.createBed);
+router.post('/', passport.authenticate('jwt', {session: false}), controller.create);
 
 /**
  * @swagger
@@ -143,7 +143,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), controller.crea
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/:bed_uuid', passport.authenticate('jwt', {session: false}), controller.getBed);
+router.get('/:bed_uuid', passport.authenticate('jwt', {session: false}), controller.get);
 
 /**
  * @swagger
@@ -170,7 +170,7 @@ router.get('/:bed_uuid', passport.authenticate('jwt', {session: false}), control
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.delete('/:bed_uuid', passport.authenticate('jwt', {session: false}), controller.deleteBed);
+router.delete('/:bed_uuid', passport.authenticate('jwt', {session: false}), controller.delete);
 
 /**
  * @swagger
@@ -202,7 +202,7 @@ router.delete('/:bed_uuid', passport.authenticate('jwt', {session: false}), cont
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.put('/:bed_uuid/clean', passport.authenticate('jwt', {session: false}), controller.cleanlinessBed);
+router.put('/:bed_uuid/clean', passport.authenticate('jwt', {session: false}), controller.updateCleanState);
 
 /**
  * @swagger
@@ -233,7 +233,7 @@ router.put('/:bed_uuid/clean', passport.authenticate('jwt', {session: false}), c
  *        $ref: '#/responses/404NotFound'
  *      500:
  *        $ref: '#/responses/500Internal' */
-router.put('/:bed_uuid/status', passport.authenticate('jwt', {session: false}), controller.modifyBedStatus);
+router.put('/:bed_uuid/status', passport.authenticate('jwt', {session: false}), controller.updateStatus);
 
 /**
  * @swagger
@@ -270,6 +270,6 @@ router.put('/:bed_uuid/status', passport.authenticate('jwt', {session: false}), 
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.put('/:bed_uuid/room', passport.authenticate('jwt', {session: false}), controller.modifyBedRoom);
+router.put('/:bed_uuid/room', passport.authenticate('jwt', {session: false}), controller.updateRoom);
 
 module.exports = router;

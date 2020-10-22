@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/user');
+const controller = require('../controllers/users');
 const passport = require('passport');
 
 /**
@@ -20,7 +20,7 @@ const passport = require('passport');
 
 /**
  * @swagger
- * /user:
+ * /users:
  *  post:
  *    tags:
  *      - Utilisateurs
@@ -53,11 +53,11 @@ const passport = require('passport');
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.post('/', passport.authenticate('jwt', {session: false}), controller.register);
+router.post('/', passport.authenticate('jwt', {session: false}), controller.create);
 
 /**
  * @swagger
- * /user:
+ * /users:
  *  get:
  *    tags:
  *      - Utilisateurs
@@ -83,11 +83,11 @@ router.post('/', passport.authenticate('jwt', {session: false}), controller.regi
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/', passport.authenticate('jwt', {session: false}), controller.fetchInfos);
+router.get('/', passport.authenticate('jwt', {session: false}), controller.get);
 
 /**
  * @swagger
- * /user:
+ * /users:
  *  put:
  *    tags:
  *      - Utilisateurs
@@ -124,7 +124,7 @@ router.put('/', passport.authenticate('jwt', {session: false}), controller.updat
 
 /**
  * @swagger
- * /user:
+ * /users:
  *  delete:
  *    tags:
  *      - Utilisateurs
@@ -151,7 +151,7 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
 
 /**
  * @swagger
- * /user/all:
+ * /users/all:
  *  get:
  *    tags:
  *      - Utilisateurs
@@ -172,7 +172,7 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
  *      500:
  *        $ref: '#/responses/500Internal'
  */
-router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAllUsers);
+router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAll);
 
 
 module.exports = router;

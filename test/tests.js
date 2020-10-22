@@ -68,7 +68,7 @@ describe("Tests with token required", () => {
   describe("Registration test", () => {
     it("should return a 201 code", done => {
       server
-        .post("/user/")
+        .post("/users/")
         .set('Authorization', `Bearer ${adminToken}`)
         .send({"username": "test", "password": "test" , "role": 1})
         .expect(201)
@@ -82,7 +82,7 @@ describe("Tests with token required", () => {
   describe("Registration fail test", () => {
     it("should return a 400 code", done => {
       server
-        .post("/user/")
+        .post("/users/")
         .set('Authorization', `Bearer ${adminToken}`)
         .send("username=test")
         .expect(400)
@@ -96,7 +96,7 @@ describe("Tests with token required", () => {
   describe("Registration bad permissions", () => {
     it("should return a 401 code", done => {
       server
-        .post("/user/")
+        .post("/users/")
         .set('Authorization', `Bearer ${nurseToken}`)
         .send({"username": "test", "password": "test" , "role": 1})
         .expect(401)
@@ -164,7 +164,7 @@ describe("Tests with token required", () => {
   describe("Get self infos test", () => {
     it("should return a 200 code", done => {
       server
-        .get("/user/")
+        .get("/users/")
         .set("Authorization", `Bearer ${nurseToken}`)
         .expect(200)
         .end(function(err, res) {
@@ -178,7 +178,7 @@ describe("Tests with token required", () => {
   describe("Get user infos test", () => {
     it("should return a 200 code", done => {
       server
-        .get("/user/")
+        .get("/users/")
         .send("username=nurse")
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(200)
@@ -193,7 +193,7 @@ describe("Tests with token required", () => {
   describe("Get user infos test no permissions", () => {
     it("should return a 401 code", done => {
       server
-        .get("/user/?username=admin")
+        .get("/users/?username=admin")
         .set("Authorization", `Bearer ${nurseToken}`)
         .expect(401)
         .end(function(err, res) {
@@ -206,7 +206,7 @@ describe("Tests with token required", () => {
   describe("Get non-existing user infos", () => {
     it("should return a 404 code", done => {
       server
-        .get("/user/?username=notauser")
+        .get("/users/?username=notauser")
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(404)
         .end(function(err, res) {
@@ -219,7 +219,7 @@ describe("Tests with token required", () => {
   describe("Change self infos test", () => {
     it("should return a 202 code", done => {
       server
-        .put("/user/")
+        .put("/users/")
         .send("password=pass")
         .set("Authorization", `Bearer ${nurseToken}`)
         .expect(202)
@@ -233,7 +233,7 @@ describe("Tests with token required", () => {
   describe("Change user infos test", () => {
     it("should return a 202 code", done => {
       server
-        .put("/user/")
+        .put("/users/")
         .send("username=nurse&password=pass")
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(202)
@@ -247,7 +247,7 @@ describe("Tests with token required", () => {
   describe("Change user infos test no permissions", () => {
     it("should return a 401 code", done => {
       server
-        .put("/user/")
+        .put("/users/")
         .send("username=admin&password=pass")
         .set("Authorization", `Bearer ${nurseToken}`)
         .expect(401)
@@ -261,7 +261,7 @@ describe("Tests with token required", () => {
   describe("Change non-existing user infos", () => {
     it("should return a 404 code", done => {
       server
-        .put("/user/")
+        .put("/users/")
         .send("username=nonexisting&password=pass")
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(404)
@@ -275,7 +275,7 @@ describe("Tests with token required", () => {
   describe("Delete user test no permissions", () => {
     it("should return a 401 code", done => {
       server
-        .delete("/user/")
+        .delete("/users/")
         .send("username=test")
         .set("Authorization", `Bearer ${noPermToken}`)
         .expect(401)
@@ -289,7 +289,7 @@ describe("Tests with token required", () => {
   describe("Delete user test", () => {
     it("should return a 204 code", done => {
       server
-        .delete("/user/")
+        .delete("/users/")
         .send("username=test")
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(204)
@@ -303,7 +303,7 @@ describe("Tests with token required", () => {
   describe("Delete self test", () => {
     it("should return a 204 code", done => {
       server
-        .delete("/user/")
+        .delete("/users/")
         .set("Authorization", `Bearer ${nurseToken}`)
         .expect(204)
         .end(err => {
@@ -1022,7 +1022,7 @@ describe("Tests with token required", () => {
     it("should return a 401 code", function(done) {
       server
       .get("/roles")
-      .send("role=admin")
+      .query("role=admin")
       .set('Authorization', `Bearer ${noPermToken}`)
       .expect(401)
       .end(function(err, res) {
@@ -1036,7 +1036,7 @@ describe("Tests with token required", () => {
     it("should return a role", function(done) {
       server
       .get("/roles")
-      .send("role=admin")
+      .query("role=admin")
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(200)
       .end(function(err, res) {
@@ -1054,7 +1054,7 @@ describe("Tests with token required", () => {
       server
       .get("/roles")
       .set('Authorization', `Bearer ${adminToken}`)
-      .send("index=1")
+      .query("index=1")
       .expect(200)
       .end(function(err, res) {
         if (err) return done(err);
@@ -1086,7 +1086,7 @@ describe("Tests with token required", () => {
       server
       .get("/roles")
       .set('Authorization', `Bearer ${adminToken}`)
-      .send("index=1")
+      .query("index=1")
       .expect(200)
       .end(function(err, res) {
         if (err) return done(err);
