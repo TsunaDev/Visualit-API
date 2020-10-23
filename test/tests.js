@@ -313,6 +313,137 @@ describe("Tests with token required", () => {
     });
   });
 
+  describe("Add first preference test", () => {
+    it("should return a 202 code", done => {
+      server
+        .post("/users/prefs/")
+        .send({"name": "testPref", "value": "yes"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Add second preference test", () => {
+    it("should return a 202 code", done => {
+      server
+        .post("/users/prefs/")
+        .send({"name": "testPref2", "value": "true"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Update first preference test", () => {
+    it("should return a 202 code", done => {
+      server
+        .post("/users/prefs/")
+        .send({"name": "testPref", "value": "no"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("List preferences test", () => {
+    it("should return a 200 code", done => {
+      server
+        .get("/users/prefs/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(function(err, res) {
+          if (err) return done(err);
+          res.body.testPref.should.equal("no");
+          res.body.testPref2.should.equal("true");
+          done();
+        });
+    });
+  });
+
+  describe("Delete first preference test", () => {
+    it("should return a 202 code", done => {
+      server
+        .delete("/users/prefs/")
+        .send({"name": "testPref"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(function(err, res) {
+          if (err) return done(err);
+          res.body.testPref2.should.equal("true");
+          done();
+        });
+    });
+  });
+
+  describe("Delete second preference test (empty list)", () => {
+    it("should return a 202 code", done => {
+      server
+        .delete("/users/prefs/")
+        .send({"name": "testPref2"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(202)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("List preferences test (empty list)", () => {
+    it("should return a 200 code", done => {
+      server
+        .get("/users/prefs/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200)
+        .end(function(err, res) {
+          if (err) return done(err);
+          let check = true;
+          Object.keys(res.body).forEach(function(_key) {
+            check = false;
+          });
+          check.should.equal(true);
+          done();
+        });
+    });
+  });
+
+  describe("Add preference with missing parameter", () => {
+    it("should return a 400 code", done => {
+      server
+        .post("/users/prefs/")
+        .send({"name": "testPref"})
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(400)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
+  describe("Delete preference with missing parameter", () => {
+    it("should return a 400 code", done => {
+      server
+        .delete("/users/prefs/")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(400)
+        .end(err => {
+          if (err) return done(err);
+          done();
+        });
+    });
+  });
+
   describe("Create a service with no permission", function() {
     it("should return a 401 code", done => {
       server

@@ -47,7 +47,7 @@ module.exports = {
     const role = req.body["role"];
 
     if (!username || !password || !role)
-    return res.status(400).send({error: {name: "MissingParameter"}});
+      return res.status(400).send({error: {name: "MissingParameter"}});
 
     await graph.createUser(username, password, role, function(result) {
       if (result.status)
@@ -156,6 +156,83 @@ module.exports = {
         ret = res.status(500).send({error: result.value});
     });
     
+    return ret;
+  },
+
+  addPreference: async(req, res) => {
+    let ret = null;
+    let preferences = {};
+    const name = req.body.name;
+    const value = req.body.value;
+
+    if (!name || !value)
+      return res.status(400).send({error: {name: "MissingParameter"}});
+
+    await graph.getUser(req.user.username, function(result) {
+      if (!result.status)
+        ret = res.status(500).send({error: result.value});
+      else {
+        if (result.value[0].preferences)
+          preferences = JSON.parse(result.value[0].preferences);
+        preferences[name] = value;
+      }
+    });
+
+    if (!ret) {
+      await graph.updateUserPreferences(req.user.username, preferences, function(result) {
+        if (!result.status)
+          ret = res.status(500).send({error: result.value});
+        else
+          ret = res.status(202).send(preferences);
+      });
+    }
+    return ret;
+  },
+
+  listPreferences: async(req, res) => {
+    let ret = null;
+    let preferences = {};
+
+    await graph.getUser(req.user.username, function(result) {
+      if (!result.value)
+        ret = res.status(500).send({error: result.value});
+      else {
+        if (result.value[0].preferences)
+          preferences = JSON.parse(result.value[0].preferences);
+        ret = res.status(200).send(preferences);
+      }
+    });
+
+    return ret;
+  },
+
+  deletePreference: async(req, res) => {
+    let ret = null;
+    let preferences = {};
+    const name = req.body.name;
+
+    if (!name)
+      return res.status(400).send({error: {name: "MissingParameter"}});
+
+    await graph.getUser(req.user.username, function(result) {
+      if (!result.value)
+        ret = res.status(500).send({error: result.value});
+      else {
+        if (result.value[0].preferences)
+          preferences = JSON.parse(result.value[0].preferences);
+        delete preferences[name];
+      }
+    });
+
+    if (!ret) {
+      await graph.updateUserPreferences(req.user.username, preferences, function(result) {
+        if (!result.status)
+          ret = res.status(500).send({error: result.value});
+        else
+          ret = res.status(202).send(preferences);
+      });
+    }
+
     return ret;
   }
 };
