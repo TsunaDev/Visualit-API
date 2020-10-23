@@ -174,5 +174,62 @@ router.delete('/', passport.authenticate('jwt', {session: false}), controller.de
  */
 router.get('/all', passport.authenticate('jwt', {session: false}), controller.getAll);
 
+/**
+ * @swagger
+ * /users/prefs:
+ *  post:
+ *    tags:
+ *      - Utilisateurs
+ *    description: "Ajoute ou modifie une préférence à l'utilisateur qui appelle cette route."
+ *    responses:
+ *      201:
+ *        description: La préférence a été ajouté ou modifiée.
+ *      400:
+ *        $ref: '#/responses/400BadRequest'
+ *      401:
+ *        $ref: '#/responses/401Unauthorized'
+ *      500:
+ *        $ref: '#/responses/500Interal'
+ */
+router.post('/prefs', passport.authenticate('jwt', {session: false}), controller.addPreference);
+
+
+/**
+ * @swagger
+ * /users/prefs:
+ *  get:
+ *    tags:
+ *      - Utilisateurs
+ *    description: "Récupère la liste des préférences de l'utilisateur en cours."
+ *    responses:
+ *      200:
+ *        description: La liste des préférences est dans le contenu de la réponse.
+ *      400:
+ *        $ref: '#/responses/400BadRequest'
+ *      401:
+ *        $ref: '#/responses/401Unauthorized'
+ *      500:
+ *        $ref: '#/responses/500Interal'
+ */
+router.get('/prefs', passport.authenticate('jwt', {session: false}), controller.listPreferences);
+
+/**
+ * @swagger
+ * /users/prefs:
+ *  delete:
+ *    tags:
+ *      - Utilisateurs
+ *    description: "Supprime une préférence à l'utilisateur en cours."
+ *    responses:
+ *      204:
+ *        description: La préférence a été supprimée.
+ *      400:
+ *        $ref: '#/responses/400BadRequest'
+ *      401:
+ *        $ref: '#/responses/401Unauthorized'
+ *      500:
+ *        $ref: '#/responses/500Interal'
+ */
+router.delete('/prefs', passport.authenticate('jwt', {session: false}), controller.deletePreference);
 
 module.exports = router;

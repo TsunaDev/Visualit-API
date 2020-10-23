@@ -179,6 +179,10 @@ module.exports = {
     });
   },
 
+  updateUserPreferences: (username, preferences, callback) => {
+    return GraphCall("MATCH (u:User {name: '" + username + "'}) SET u.preferences = '" + JSON.stringify(preferences) + "' RETURN u", callback);
+  },
+
   // Roles
 
   /** 
