@@ -25,6 +25,7 @@ const passport = require('passport');
 router.post('/rooms', passport.authenticate('jwt', {session: false}), controller.rooms);
 
 /**
+ * @swagger
  * /import/users:
  *  post:
  *    tags:
