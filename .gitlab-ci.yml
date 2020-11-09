@@ -41,6 +41,7 @@ auto_increment:
   script:
     - "chmod +x versioning/auto_increment.sh"
     - "./versioning/auto_increment.sh versioning/VERSION_FILE ${CI_PROJECT_URL} ${API_ACCESS_TOKEN} ${CI_PROJECT_ID}"
+    - curl -d "uuid=$(cat VERSION | tr -d '\n')&version=${MAJOR}.${MINOR}.${HOTFIX}" -X POST http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/version
 
 deploy:
   image: docker:19.03.12

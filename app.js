@@ -11,6 +11,12 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const axios = require('axios');
+const fs = require('fs');
+
+fs.readFile('VERSION', 'utf8', function(err, contents) {
+  axios.get('http://x2021visualit2003257697000.northeurope.cloudapp.azure.com:3001/version?uuid=' + contents).then((res) => { process.env['API_VERSION'] = res.data });
+});
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -56,6 +62,7 @@ const feedbackRouter = require('./routes/feedback');
 const qrcodeRouter = require('./routes/qrcode');
 const waitingRouter = require('./routes/waiting');
 const statsRouter = require('./routes/stats');
+const { cpuUsage } = require('process');
 
 const app = express();
 
@@ -112,6 +119,10 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+app.get('/version', (req, res) => {
+  res.status(200).send({version: process.env['API_VERSION']});
 });
 
 module.exports = app;
