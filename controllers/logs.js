@@ -1,6 +1,4 @@
-const {BedStateEvent} = require("../models/bed_event");
-const {Sequelize, Op} = require('sequelize');
-
+/*
 
 const genFilter = (serviceId, dateBegin, dateEnd) => {
   let filter = {};
@@ -13,10 +11,6 @@ const genFilter = (serviceId, dateBegin, dateEnd) => {
   return filter;
 };
 
-/**
- * Est appelé à chaque fois qu'un lit est mis à jour et envoi les informations de mise à jour sur la base de donnée MongoDB.
- * @param {json} bedInfo Anciennes et nouvelles informations sur le lit réunies.
- */
 const bedUpdateEvent = (bedInfo) => {
   const now = Date.now();
   const elem = BedStateEvent.build({
@@ -49,12 +43,6 @@ const bedUpdateEvent = (bedInfo) => {
   }).catch(_ => elem.save())
 };
 
-/**
- * Récupère une notification de modification d'un lit sur la base MongoDB.
- * @param {number} serviceId (optionnel) Permet de spécifier un service en particulier.
- * @param {*} dateBegin (optionnel) Permet de spécifier un interval de temps.
- * @param {*} dateEnd (optionnel) Permet de spécifier un interval de temps.
- */
 const getBedEvent = (serviceId, dateBegin, dateEnd) => {
   return BedStateEvent.findAll({
     order: [['dateBegin', 'DESC']],
@@ -127,3 +115,4 @@ module.exports = {
     });
   },
 };
+*/
