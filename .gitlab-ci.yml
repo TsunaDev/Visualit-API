@@ -17,6 +17,7 @@ cache:
 install_dependencies:
   stage: build
   script:
+    - apk add python make g++
     - npm install
   artifacts:
     paths:
