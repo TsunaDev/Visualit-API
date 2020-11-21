@@ -29,10 +29,6 @@ BedStateEvent.init({
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   userRole: {
     type: DataTypes.STRING,
     allowNull: false
