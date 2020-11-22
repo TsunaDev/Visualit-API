@@ -10,7 +10,8 @@ router.get('/patients', passport.authenticate('jwt', {session: false}), (req, re
 
   logs.getPatientNumber(serviceId, dateBegin, dateEnd).then(result => {
     res.status(200).send(result);
-  }).catch(_ => {
+  }).catch(e => {
+    console.error(e)
     res.sendStatus(500);
   });
 });

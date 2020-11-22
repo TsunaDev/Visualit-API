@@ -85,6 +85,19 @@ function GraphCallTransformInteger(request, callback) {
   });
 }
 
+function createAdminRoleAndUser() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      GraphCall('MERGE (r:Role {name: "admin"}) ON CREATE SET r.index = "1", r.permissions = ' + JSON.stringify(['beds.all', 'etl.all', 'roles.all', 'room.all', 'services.all', 'user.all', 'waiting.all']) + ' RETURN r', () => {console.log("Admin role initiated")});
+      GraphCall('MERGE (u:User {name: "admin"}) ON CREATE SET u.password = "password" RETURN u', () => {GraphCall('MATCH (u:User {name: "admin"}) MATCH (r:Role {name: "admin"}) MERGE (u)-[:ROLE]->(r) RETURN u', () => {GraphCall('CREATE CONSTRAINT ON (u:User) ASSERT a.name IS UNIQUE', () => {})});});
+          
+      resolve(true);
+    }, 30000);
+  });
+}
+
+createAdminRoleAndUser();
+
 module.exports = {
   /**
    * Crée un utilisateur

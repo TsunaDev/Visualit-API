@@ -1,6 +1,7 @@
 /**
  * Script principal de l'application permettant de configurer les propriétés du site et d'appeler les différentes routes.
  */
+require('appmetrics-dash').attach();
 const createError = require('http-errors');
 const express = require('express');
 const expressFileUpload = require('express-fileupload');
@@ -105,6 +106,10 @@ app.use('/feedback', feedbackRouter);
 app.use('/waiting', waitingRouter);
 app.use('/stats', statsRouter);
 
+app.get('/version', (req, res) => {
+  res.status(200).send({version: process.env['API_VERSION']});
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -119,10 +124,6 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});
-
-app.get('/version', (req, res) => {
-  res.status(200).send({version: process.env['API_VERSION']});
 });
 
 module.exports = app;

@@ -81,6 +81,13 @@ async function createUsers(data) {
   }
 }
 
+async function createRoles(data) {
+  for (i = 0; i < data.length; i++) {
+    console.log(data[i]);
+    await graph.createRole(data[i].role, data[i].index, data[i].permissions.split(";"), () => {});
+  }
+}
+
 
 module.exports = {
   /**
@@ -93,22 +100,21 @@ module.exports = {
       return res.status(401).send({error: {name: "PermissionDenied"}});
 
     const file = req.files.data;
-    await file.mv('./uploads/' + file.name, function(err, result) {
+    await file.mv('./uploads/' + file.name, async function(err, result) {
       if(err) 
         throw err;
-    });
 
-    const path = "./uploads/" + file.name;
-    await fs.stat(path, async function(err, stats) {
-      if (stats.isFile()) {
-        const data = await csvtojson().fromFile(path);
-        const services = extractServices(data);
-        await createServices(services);
-        const graphServices = await getServices();
-        await createBeds(data, graphServices);
-      }
+      const path = "./uploads/" + file.name;
+      await fs.stat(path, async function(err, stats) {
+        if (stats.isFile()) {
+          const data = await csvtojson().fromFile(path);
+          const services = extractServices(data);
+          await createServices(services);
+          const graphServices = await getServices();
+          await createBeds(data, graphServices);
+        }
+      });
     });
-
 
     res.sendStatus(200);
   },
@@ -120,18 +126,46 @@ module.exports = {
       return res.status(401).send({error: {name: "PermissionDenied"}});
 
     const file = req.files.data;
-    await file.mv('./uploads/' + file.name, function(err, result) {
+    await file.mv('./uploads/' + file.name, async function(err, result) {
       if (err)
         throw err;
+
+      const path = "./uploads/" + file.name;
+      await fs.stat(path, async function(err, stats) {
+        if (stats.isFile()) {
+          const data = await csvtojson().fromFile(path);
+          await createUsers(data);
+        }
+      });
     });
 
-    const path = "./uploads/" + file.name;
-    await fs.stat(path, async function(err, stats) {
-      if (stats.isFile()) {
-        const data = await csvtojson().fromFile(path);
-        await createUsers(data);
-      }
+    res.sendStatus(200);
+  },
+
+  roles: async(req, res) => {
+    const check = await checkPermission("etl", "roles", req.user);
+
+    if (!check)
+      return res.status(401).send({error: {name: "PermissionDenied"}});
+
+    const file = req.files.data;
+    await file.mv('./uploads/' + file.name, async function(err, result) {
+      if (err)
+        throw err;
+
+      const path = "./uploads/" + file.name;
+
+      await fs.stat(path, async function(err, stats) {
+          if (err)
+            console.log(err);
+          if (stats.isFile()) {
+            const data = await csvtojson().fromFile(path);
+            await createRoles(data);
+          }
+        });
     });
+
+
     res.sendStatus(200);
   }
 };

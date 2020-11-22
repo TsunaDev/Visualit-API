@@ -17,6 +17,7 @@ cache:
 install_dependencies:
   stage: build
   script:
+    - apk add python make g++
     - npm install
   artifacts:
     paths:
@@ -54,4 +55,6 @@ deploy:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY/visualitgroup/api/server:${MAJOR}.${MINOR}.${HOTFIX} .
+    - docker build -t $CI_REGISTRY/visualitgroup/api/server:latest .
     - docker push $CI_REGISTRY/visualitgroup/api/server:${MAJOR}.${MINOR}.${HOTFIX}
+    - docker push $CI_REGISTRY/visualitgroup/api/server:latest
