@@ -1,4 +1,6 @@
-/*
+const {BedStateEvent} = require("../models/bed_event");
+const {Sequelize, Op} = require('sequelize');
+
 
 const genFilter = (serviceId, dateBegin, dateEnd) => {
   let filter = {};
@@ -16,7 +18,6 @@ const bedUpdateEvent = (bedInfo) => {
   const elem = BedStateEvent.build({
     bedID: bedInfo.bed_uuid,
     serviceID: bedInfo.service_id,
-    username: bedInfo.username,
     userRole: bedInfo.user_role,
     oldState: bedInfo.state.old,
     newState: bedInfo.state.new,
@@ -27,7 +28,6 @@ const bedUpdateEvent = (bedInfo) => {
     order: [['id', 'DESC']],
     limit: 1
   }).then(bed => {
-    console.log(bed)
     if (bed && !bed.dateEnd) {
       const update = BedStateEvent.update({
         dateEnd: now
@@ -115,4 +115,3 @@ module.exports = {
     });
   },
 };
-*/

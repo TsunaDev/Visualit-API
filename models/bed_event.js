@@ -2,20 +2,18 @@ const { Sequelize, DataTypes, Model } = require('sequelize');
 const sequelize = new Sequelize(process.env.LOGS_DB, process.env.LOGS_USERNAME, process.env.LOGS_PASSWORD, {
   host: process.env.LOGS_URI,
   dialect: 'mariadb',
-  logging: false
+  logging: false,
+  pool: {
+    max: 5,
+    idle: 30000,
+    acquire: 60000,
+  }
 });
 
-sequelize.authenticate().then(r => {
-  console.log('Connection has been established successfully.');
-}).catch(e => {
-  console.error('Unable to connect to the database:', e)
-});
 /**
  * Schéma MongoDB pour le système de logs.
  */
-class BedStateEvent extends Model {}
-
-BedStateEvent.init({
+sequelize.define("bedStateEvents", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -27,10 +25,6 @@ BedStateEvent.init({
   },
   serviceID: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  username: {
-    type: DataTypes.STRING,
     allowNull: false
   },
   userRole: {
@@ -54,14 +48,15 @@ BedStateEvent.init({
     type: DataTypes.DATE,
     allowNull: true
   },
-}, {
-  sequelize: sequelize,
-  timestamps: false
 });
 
-(async () => {
-  await sequelize.sync();
-})();
+setTimeout(_ => {
+  sequelize.sync().then(_ => {
+    console.log('Connection has been established successfully.');
+  }).catch(e => {
+    console.error('Unable to connect to the database:', e);
+  });
+}, 10000);
 
 const BedState = {
   free: 0,
@@ -72,5 +67,5 @@ const BedState = {
 
 module.exports = {
   BedState,
-  BedStateEvent
+  BedStateEvent: sequelize.models.bedStateEvents
 };

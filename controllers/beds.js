@@ -40,7 +40,6 @@ async function updateUtil(bedId, oldBed, newBed, user) {
     bed_uuid: bedId,
     room_nb: oldBed.room_nb,
     service_id: oldBed.service_id,
-    username: user.username,
     user_role: role,
     state: {
       old: parseInt(oldBed.status, 10),
