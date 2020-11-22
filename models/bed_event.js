@@ -5,16 +5,10 @@ const sequelize = new Sequelize(process.env.LOGS_DB, process.env.LOGS_USERNAME, 
   logging: false
 });
 
-sequelize.authenticate().then(r => {
-  console.log('Connection has been established successfully.');
-}).catch(e => {
-  console.error('Unable to connect to the database:', e)
-});
+class BedStateEvent extends Model {}
 /**
  * Schéma MongoDB pour le système de logs.
  */
-class BedStateEvent extends Model {}
-
 BedStateEvent.init({
   id: {
     type: DataTypes.INTEGER,
@@ -55,9 +49,12 @@ BedStateEvent.init({
   timestamps: false
 });
 
-(async () => {
+sequelize.authenticate().then(async r => {
+  console.log('Connection has been established successfully.');
   await sequelize.sync();
-})();
+}).catch(e => {
+  console.error('Unable to connect to the database:', e)
+});
 
 const BedState = {
   free: 0,
