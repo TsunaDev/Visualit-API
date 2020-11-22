@@ -43,16 +43,16 @@ const bedUpdateEvent = (bedInfo) => {
   }).catch(_ => elem.save())
 };
 
-const getBedEvent = (serviceId, dateBegin, dateEnd) => {
-  return BedStateEvent.findAll({
-    order: [['dateBegin', 'DESC']],
-    where: genFilter(serviceId, dateBegin, dateEnd)
-  })
-};
-
 module.exports = {
   bedUpdateEvent,
-  getBedEvent,
+
+  /**
+   * Récupère le nombre de patients par service
+   * @param {number | string} [serviceId] (Filtre) ID du service.
+   * @param {date | string} [dateBegin] (Filtre) Date de début de la requête
+   * @param {date | string} [dateEnd] (Filtre) Date de fin de la requête
+   * @returns {json} Le nombre de patients par service
+   */
   getPatientNumber: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
     filter.newState = {[Op.eq]: 2}
@@ -66,6 +66,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Récupère la durée de séjour moyenne par service
+   * @param {number | string} [serviceId] (Filtre) ID du service.
+   * @param {date | string} [dateBegin] (Filtre) Date de début de la requête
+   * @param {date | string} [dateEnd] (Filtre) Date de fin de la requête
+   * @returns {json} Le résumé du temps de séjour par service.
+   */
   getStayAvg: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
     filter.newState = {[Op.eq]: 2}
@@ -77,6 +84,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Récupère la durée de séjour moyenne par service par jour
+   * @param {number | string} [serviceId] (Filtre) ID du service.
+   * @param {date | string} [dateBegin] (Filtre) Date de début de la requête
+   * @param {date | string} [dateEnd] (Filtre) Date de fin de la requête
+   * @returns {json} Le résumé du temps de séjour par service et par jour.
+   */
   getStayAvgDay: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
     filter.newState = {[Op.eq]: 2}
@@ -89,6 +103,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Récupère combien de patients ont séjournés combien de jours, par service
+   * @param {number | string} [serviceId] (Filtre) ID du service.
+   * @param {date | string} [dateBegin] (Filtre) Date de début de la requête
+   * @param {date | string} [dateEnd] (Filtre) Date de fin de la requête
+   * @returns {json} Le résumé du temps de séjour par service.
+   */
   getDaysIn: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
     filter.newState = {[Op.eq]: 2}
@@ -104,6 +125,14 @@ module.exports = {
       where: filter,
     });
   },
+
+  /**
+   * Récupère combien de temps est passé dans chaque état (de lit) par service
+   * @param {number | string} [serviceId] (Filtre) ID du service.
+   * @param {date | string} [dateBegin] (Filtre) Date de début de la requête
+   * @param {date | string} [dateEnd] (Filtre) Date de fin de la requête
+   * @returns {json} Le résumé du temps passé par état et par service.
+   */
   getStateDuration: (serviceId, dateBegin, dateEnd) => {
     let filter = genFilter(serviceId, dateBegin, dateEnd);
 
