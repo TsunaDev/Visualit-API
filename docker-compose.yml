@@ -20,7 +20,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - DB_URI="bolt://x2021visualit2003257697000.northeurope.cloudapp.azure.com:7687"
+      - DB_URI="bolt://graph:7687"
       - LOGS_URI=logs
       - LOGS_DB=visualit
       - LOGS_PASSWORD=password
