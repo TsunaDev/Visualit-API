@@ -55,9 +55,8 @@ setTimeout(_ => {
     console.log('Connection has been established successfully.');
   }).catch(e => {
     console.error('Unable to connect to the database:', e);
-    process.exit();
   });
-}, 5000);
+}, 10000);
 
 const BedState = {
   free: 0,
