@@ -49,7 +49,7 @@ const passport = require('passport');
  *         in: formData
  *         type: number
  *         required: true
- *       - name: beds
+ *       - name: nb_beds
  *         description: Nombre de lits dans la chambre.
  *         in: formData
  *         type: number
