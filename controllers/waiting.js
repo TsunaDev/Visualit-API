@@ -81,11 +81,10 @@ module.exports = {
     if (!item)
       return res.status(404).send({error: {name: "ItemNotFound", info: "Couldn't find any ticket at the date you gave."}});
     
-    if (service && !isNaN(service))
-      item.service = service;
-    item.room = room || item.room;
-    item.bed = bed || item.bed;
-    item.comment = comment || item.comment;
+    item.service = service;
+    item.room = room;
+    item.bed = bed;
+    item.comment = comment;
     
     return res.sendStatus(202);
   },
